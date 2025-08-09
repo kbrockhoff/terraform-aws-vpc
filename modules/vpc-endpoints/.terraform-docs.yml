@@ -1,0 +1,196 @@
+formatter: "markdown table"
+
+version: ""
+
+header-from: main.tf
+footer-from: ""
+
+sections:
+  hide: []
+  show: []
+
+content: |-
+  # VPC Endpoints Module
+
+  This module creates AWS VPC Endpoints for both Gateway and Interface types to enable private connectivity to AWS services.
+
+  ## Features
+
+  - Create Gateway endpoints for S3 and DynamoDB
+  - Create Interface endpoints for other AWS services
+  - Support for custom endpoint policies
+  - Configurable private DNS for Interface endpoints
+  - Comprehensive output mapping for all endpoints
+
+  ## Usage
+
+  ### Basic Gateway Endpoints
+
+  ```hcl
+  module "vpc_endpoints" {
+    source = "./modules/vpc-endpoints"
+
+    name_prefix      = "my-project"
+    vpc_id           = var.vpc_id
+    route_table_ids  = [var.private_route_table_id]
+    
+    gateway_endpoints = ["s3", "dynamodb"]
+    
+    tags = {
+      Environment = "production"
+      Project     = "my-project"
+    }
+  }
+  ```
+
+  ### Interface Endpoints with Security Groups
+
+  ```hcl
+  module "vpc_endpoints" {
+    source = "./modules/vpc-endpoints"
+
+    name_prefix         = "my-project"
+    vpc_id              = var.vpc_id
+    subnet_ids          = var.private_subnet_ids
+    security_group_ids  = [var.endpoint_security_group_id]
+    
+    interface_endpoints = ["ec2", "ssm", "logs", "monitoring"]
+    private_dns_enabled = true
+    
+    tags = {
+      Environment = "production"
+      Project     = "my-project"
+    }
+  }
+  ```
+
+  ### Mixed Endpoints with Custom Policies
+
+  ```hcl
+  module "vpc_endpoints" {
+    source = "./modules/vpc-endpoints"
+
+    name_prefix         = "my-project"
+    vpc_id              = var.vpc_id
+    subnet_ids          = var.private_subnet_ids
+    security_group_ids  = [var.endpoint_security_group_id]
+    route_table_ids     = var.private_route_table_ids
+    
+    gateway_endpoints   = ["s3", "dynamodb"]
+    interface_endpoints = ["ec2", "ssm", "secretsmanager"]
+    
+    policy_enabled = true
+    endpoint_policies = {
+      s3 = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow"
+            Principal = "*"
+            Action = [
+              "s3:GetObject",
+              "s3:PutObject"
+            ]
+            Resource = "arn:aws:s3:::my-bucket/*"
+          }
+        ]
+      })
+    }
+    
+    tags = {
+      Environment = "production"
+      Project     = "my-project"
+    }
+  }
+  ```
+
+  ## Common AWS Service Names
+
+  ### Gateway Endpoints (Route Table based)
+  - `s3` - Amazon S3
+  - `dynamodb` - Amazon DynamoDB
+
+  ### Interface Endpoints (ENI based)
+  #### Compute & Management
+  - `ec2` - Amazon EC2
+  - `ec2messages` - EC2 Instance Connect
+  - `ssm` - AWS Systems Manager
+  - `ssmmessages` - SSM Session Manager
+  - `ecs` - Amazon ECS
+  - `ecs-agent` - ECS Container Agent
+  - `ecs-telemetry` - ECS Telemetry
+
+  #### Storage & Database
+  - `elasticfilesystem` - Amazon EFS
+  - `fsx` - Amazon FSx
+  - `rds` - Amazon RDS
+
+  #### Security & Identity
+  - `secretsmanager` - AWS Secrets Manager
+  - `kms` - AWS Key Management Service
+  - `sts` - AWS Security Token Service
+
+  #### Monitoring & Logging
+  - `logs` - Amazon CloudWatch Logs
+  - `monitoring` - Amazon CloudWatch
+  - `events` - Amazon EventBridge
+  - `sns` - Amazon SNS
+  - `sqs` - Amazon SQS
+
+  #### Developer Tools
+  - `git-codecommit` - AWS CodeCommit
+  - `codebuild` - AWS CodeBuild
+  - `codecommit` - AWS CodeCommit (Git)
+
+  ## Requirements
+
+  {{ .Requirements }}
+
+  ## Providers
+
+  {{ .Providers }}
+
+  ## Resources
+
+  {{ .Resources }}
+
+  ## Inputs
+
+  {{ .Inputs }}
+
+  ## Outputs
+
+  {{ .Outputs }}
+
+  ## License
+
+  MIT Licensed. See [LICENSE](../../LICENSE) for full details.
+
+output:
+  file: "README.md"
+  mode: replace
+  template: |-
+    {{ .Content }}
+
+output-values:
+  enabled: false
+  from: ""
+
+sort:
+  enabled: true
+  by: name
+
+settings:
+  anchor: true
+  color: true
+  default: true
+  description: false
+  escape: true
+  hide-empty: false
+  html: true
+  indent: 2
+  lockfile: true
+  read-comments: true
+  required: true
+  sensitive: true
+  type: true

@@ -9,9 +9,12 @@ module "pricing" {
     aws = aws.pricing
   }
 
-  enabled                 = var.enabled && var.cost_estimation_config.enabled
-  region                  = local.region
-  kms_key_count           = var.enabled && var.encryption_config.create_kms_key ? 1 : 0
-  cloudwatch_metric_count = var.enabled && var.alarms_config.enabled ? 5 : 0 # Estimate 5 metrics when monitoring enabled
-  cloudwatch_alarm_count  = var.enabled && var.alarms_config.enabled ? 3 : 0 # Estimate 3 alarms when monitoring enabled
+  enabled                      = var.enabled && var.cost_estimation_config.enabled
+  region                       = local.region
+  data_transfer_mb_per_hour    = local.effective_config.data_transfer_mb_per_hour
+  nat_gateway_count            = local.nat_gateway_count
+  vpc_flow_logs_enabled        = local.effective_config.vpc_flow_logs_enabled
+  create_vpc_flow_logs_kms_key = local.effective_config.create_vpc_flow_logs_kms_key
+  interface_endpoints_count    = local.interface_endpoints_count
+  interface_endpoints_az_count = local.interface_endpoints_az_count
 }

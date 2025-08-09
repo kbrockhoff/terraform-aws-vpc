@@ -9,35 +9,59 @@ variable "region" {
   type        = string
 }
 
-variable "kms_key_count" {
-  description = "Number of KMS keys to include in cost estimation"
+variable "data_transfer_mb_per_hour" {
+  description = "Expected data transfer in MB per hour"
+  type        = number
+  default     = 10
+
+  validation {
+    condition     = var.data_transfer_mb_per_hour >= 0
+    error_message = "Data transfer must be a non-negative number."
+  }
+}
+
+variable "nat_gateway_count" {
+  description = "Number of NAT Gateways to include in cost calculations"
   type        = number
   default     = 0
 
   validation {
-    condition     = var.kms_key_count >= 0
-    error_message = "KMS key count must be zero or positive."
+    condition     = var.nat_gateway_count >= 0 && var.nat_gateway_count <= 6
+    error_message = "NAT Gateway count must be between 0 and 6."
   }
 }
 
-variable "cloudwatch_metric_count" {
-  description = "Number of CloudWatch custom metrics to include in cost estimation"
+variable "vpc_flow_logs_enabled" {
+  description = "Whether VPC Flow Logs are enabled"
+  type        = bool
+  default     = false
+}
+
+variable "create_vpc_flow_logs_kms_key" {
+  description = "Whether to create a customer-managed KMS key for VPC Flow Logs"
+  type        = bool
+  default     = true
+}
+
+variable "interface_endpoints_count" {
+  description = "Number of interface endpoints to include in cost calculations"
   type        = number
   default     = 0
 
   validation {
-    condition     = var.cloudwatch_metric_count >= 0
-    error_message = "CloudWatch metric count must be zero or positive."
+    condition     = var.interface_endpoints_count >= 0
+    error_message = "Interface endpoints count must be a non-negative number."
   }
 }
 
-variable "cloudwatch_alarm_count" {
-  description = "Number of CloudWatch alarms to include in cost estimation"
+variable "interface_endpoints_az_count" {
+  description = "Number of availability zones for interface endpoints (affects total endpoint hours)"
   type        = number
-  default     = 0
+  default     = 1
 
   validation {
-    condition     = var.cloudwatch_alarm_count >= 0
-    error_message = "CloudWatch alarm count must be zero or positive."
+    condition     = var.interface_endpoints_az_count >= 1 && var.interface_endpoints_az_count <= 6
+    error_message = "Interface endpoints AZ count must be between 1 and 6."
   }
 }
+

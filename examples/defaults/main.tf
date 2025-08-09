@@ -17,8 +17,10 @@ module "main" {
     aws.pricing = aws.pricing
   }
 
-  name_prefix = var.name_prefix
-  tags = {
-    Example = "defaults"
-  }
+  name_prefix      = var.name_prefix
+  cidr_primary     = var.cidr_primary
+  environment_type = var.environment_type
+  tags             = var.tags
+  use_mock_azs     = var.use_mock_azs
+  dry_run_mode     = var.dry_run_mode
 }
