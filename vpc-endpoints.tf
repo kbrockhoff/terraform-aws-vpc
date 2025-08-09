@@ -8,7 +8,7 @@ module "vpc_endpoints" {
   enabled = local.gateway_endpoints_enabled || local.interface_endpoints_enabled
 
   name_prefix        = var.name_prefix
-  vpc_id             = local.create_resources ? aws_vpc.main[0].id : null
+  vpc_id             = var.enabled ? aws_vpc.main[0].id : null
   region             = local.region
   reverse_dns_prefix = local.reverse_dns_prefix
 

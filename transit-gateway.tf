@@ -12,7 +12,7 @@ locals {
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
-  count = local.create_resources && var.transit_gateway_attachment_enabled ? 1 : 0
+  count = var.enabled && var.transit_gateway_attachment_enabled ? 1 : 0
 
   subnet_ids                                      = local.transit_gateway_subnet_ids
   transit_gateway_id                              = var.transit_gateway_id
@@ -33,7 +33,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
 # ----
 
 resource "aws_ec2_transit_gateway_route_table_association" "main" {
-  count = local.create_resources && var.transit_gateway_attachment_enabled && var.transit_gateway_route_table_id != null ? 1 : 0
+  count = var.enabled && var.transit_gateway_attachment_enabled && var.transit_gateway_route_table_id != null ? 1 : 0
 
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.main[0].id
   transit_gateway_route_table_id = var.transit_gateway_route_table_id
@@ -44,7 +44,7 @@ resource "aws_ec2_transit_gateway_route_table_association" "main" {
 # ----
 
 resource "aws_ec2_transit_gateway_route_table_propagation" "main" {
-  count = local.create_resources && var.transit_gateway_attachment_enabled && var.transit_gateway_route_table_id != null ? 1 : 0
+  count = var.enabled && var.transit_gateway_attachment_enabled && var.transit_gateway_route_table_id != null ? 1 : 0
 
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.main[0].id
   transit_gateway_route_table_id = var.transit_gateway_route_table_id

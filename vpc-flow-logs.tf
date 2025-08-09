@@ -3,7 +3,7 @@
 # ----
 
 locals {
-  create_vpc_flow_logs_kms_key = local.create_resources && local.effective_config.vpc_flow_logs_enabled && local.effective_config.create_vpc_flow_logs_kms_key
+  create_vpc_flow_logs_kms_key = var.enabled && local.effective_config.vpc_flow_logs_enabled && local.effective_config.create_vpc_flow_logs_kms_key
   # Use supplied KMS key or created key for VPC Flow Logs
   vpc_flow_logs_kms_key_id = var.vpc_flow_logs_kms_key_id != null ? var.vpc_flow_logs_kms_key_id : (
     local.create_vpc_flow_logs_kms_key ? aws_kms_key.flow_logs[0].arn : null
@@ -62,7 +62,7 @@ resource "aws_kms_key" "flow_logs" {
 }
 
 resource "aws_kms_alias" "flow_logs" {
-  count = local.create_resources && local.effective_config.vpc_flow_logs_enabled && local.effective_config.create_vpc_flow_logs_kms_key ? 1 : 0
+  count = var.enabled && local.effective_config.vpc_flow_logs_enabled && local.effective_config.create_vpc_flow_logs_kms_key ? 1 : 0
 
   name          = "alias/${var.name_prefix}-vpc-flow-logs"
   target_key_id = aws_kms_key.flow_logs[0].key_id
@@ -70,7 +70,7 @@ resource "aws_kms_alias" "flow_logs" {
 
 # CloudWatch Log Group for VPC Flow Logs
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
-  count = local.create_resources && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
+  count = var.enabled && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
 
   name              = "/aws/vpc/flowlogs/${var.name_prefix}"
   retention_in_days = local.effective_config.vpc_flow_logs_retention_days
@@ -88,7 +88,7 @@ resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
 
 # IAM Role for VPC Flow Logs
 resource "aws_iam_role" "flow_logs" {
-  count = local.create_resources && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
+  count = var.enabled && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
 
   name = "${var.name_prefix}-vpc-flow-logs-role"
 
@@ -115,7 +115,7 @@ resource "aws_iam_role" "flow_logs" {
 
 # IAM Policy for VPC Flow Logs
 resource "aws_iam_role_policy" "flow_logs" {
-  count = local.create_resources && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
+  count = var.enabled && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
 
   name = "${var.name_prefix}-vpc-flow-logs-policy"
   role = aws_iam_role.flow_logs[0].id
@@ -152,7 +152,7 @@ resource "aws_iam_role_policy" "flow_logs" {
 
 # VPC Flow Log
 resource "aws_flow_log" "vpc" {
-  count = local.create_resources && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
+  count = var.enabled && local.effective_config.vpc_flow_logs_enabled ? 1 : 0
 
   iam_role_arn    = aws_iam_role.flow_logs[0].arn
   log_destination = aws_cloudwatch_log_group.vpc_flow_logs[0].arn

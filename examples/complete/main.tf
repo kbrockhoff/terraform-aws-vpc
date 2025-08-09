@@ -31,8 +31,6 @@ module "main" {
   ipv6_enabled                                    = var.ipv6_enabled
   availability_zone_count                         = var.availability_zone_count
   tags                                            = var.tags
-  use_mock_azs                                    = var.use_mock_azs
-  dry_run_mode                                    = var.dry_run_mode
   transit_gateway_attachment_enabled              = var.transit_gateway_attachment_enabled
   transit_gateway_id                              = var.transit_gateway_id
   transit_gateway_route_table_id                  = var.transit_gateway_route_table_id

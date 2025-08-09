@@ -317,18 +317,6 @@ variable "default_network_acl_egress" {
 # Availability Zones
 # ----
 
-variable "use_mock_azs" {
-  description = "Use mock availability zones instead of querying AWS (useful for testing with restricted SCPs)"
-  type        = bool
-  default     = false
-}
-
-variable "dry_run_mode" {
-  description = "Enable dry-run mode for validation without creating AWS resources (useful for testing with restricted SCPs)"
-  type        = bool
-  default     = false
-}
-
 variable "allowed_availability_zone_ids" {
   description = <<-EOT
     List of allowed availability zone IDs. If empty, randomly select from all available AZs in the region.

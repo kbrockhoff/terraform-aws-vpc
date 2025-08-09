@@ -4,7 +4,8 @@
       "Bash(make:*)",
       "Bash(go test:*)",
       "Bash(git add:*)",
-      "Bash(terraform:*)"
+      "Bash(terraform:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

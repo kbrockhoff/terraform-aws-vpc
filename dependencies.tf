@@ -1,5 +1,4 @@
 data "aws_availability_zones" "available" {
-  count = var.use_mock_azs ? 0 : 1
   state = "available"
 }
 

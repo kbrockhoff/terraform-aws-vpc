@@ -27,7 +27,7 @@ module "subnets" {
 # ----
 
 resource "aws_vpc" "main" {
-  count = local.create_resources ? 1 : 0
+  count = var.enabled ? 1 : 0
 
   cidr_block                       = var.ipam_pool_enabled ? null : var.cidr_primary
   ipv4_ipam_pool_id                = var.ipam_pool_enabled ? var.ipv4_ipam_pool_id : null
@@ -53,7 +53,7 @@ resource "aws_vpc" "main" {
 # ----
 
 resource "aws_vpc_block_public_access_options" "main" {
-  count = local.create_resources && var.block_public_access_enabled ? 1 : 0
+  count = var.enabled && var.block_public_access_enabled ? 1 : 0
 
   internet_gateway_block_mode = "block-bidirectional"
 
@@ -65,7 +65,7 @@ resource "aws_vpc_block_public_access_options" "main" {
 # ----
 
 resource "aws_vpc_ipv4_cidr_block_association" "nonroutable" {
-  count = local.create_resources ? length(local.nonroutable_subnet_cidrs) : 0
+  count = var.enabled ? length(local.nonroutable_subnet_cidrs) : 0
 
   vpc_id     = aws_vpc.main[0].id
   cidr_block = local.nonroutable_subnet_cidrs[count.index]
@@ -78,7 +78,7 @@ resource "aws_vpc_ipv4_cidr_block_association" "nonroutable" {
 # ----
 
 resource "aws_internet_gateway" "main" {
-  count = local.create_resources && var.igw_enabled && !var.block_public_access_enabled ? 1 : 0
+  count = var.enabled && var.igw_enabled && !var.block_public_access_enabled ? 1 : 0
 
   vpc_id = aws_vpc.main[0].id
 
@@ -97,7 +97,7 @@ resource "aws_internet_gateway" "main" {
 # ----
 
 resource "aws_egress_only_internet_gateway" "main" {
-  count = local.create_resources && var.ipv6_enabled ? 1 : 0
+  count = var.enabled && var.ipv6_enabled ? 1 : 0
 
   vpc_id = aws_vpc.main[0].id
 
@@ -114,7 +114,7 @@ resource "aws_egress_only_internet_gateway" "main" {
 # ----
 
 resource "aws_subnet" "public" {
-  count = local.create_resources ? length(local.public_subnet_cidrs) : 0
+  count = var.enabled ? length(local.public_subnet_cidrs) : 0
 
   vpc_id                          = aws_vpc.main[0].id
   cidr_block                      = local.public_subnet_cidrs[count.index]
@@ -137,7 +137,7 @@ resource "aws_subnet" "public" {
 # ----
 
 resource "aws_subnet" "private" {
-  count = local.create_resources ? length(local.private_subnet_cidrs) : 0
+  count = var.enabled ? length(local.private_subnet_cidrs) : 0
 
   vpc_id                          = aws_vpc.main[0].id
   cidr_block                      = local.private_subnet_cidrs[count.index]
@@ -159,7 +159,7 @@ resource "aws_subnet" "private" {
 # ----
 
 resource "aws_subnet" "database" {
-  count = local.create_resources ? length(local.database_subnet_cidrs) : 0
+  count = var.enabled ? length(local.database_subnet_cidrs) : 0
 
   vpc_id                          = aws_vpc.main[0].id
   cidr_block                      = local.database_subnet_cidrs[count.index]
@@ -181,7 +181,7 @@ resource "aws_subnet" "database" {
 # ----
 
 resource "aws_db_subnet_group" "database" {
-  count = local.create_resources && length(local.database_subnet_cidrs) > 0 ? 1 : 0
+  count = var.enabled && length(local.database_subnet_cidrs) > 0 ? 1 : 0
 
   name       = "${local.name_prefix}-database"
   subnet_ids = aws_subnet.database[*].id
@@ -196,7 +196,7 @@ resource "aws_db_subnet_group" "database" {
 }
 
 resource "aws_elasticache_subnet_group" "cache" {
-  count = local.create_resources && length(var.enabled_caches) > 0 && length(local.database_subnet_cidrs) > 0 ? 1 : 0
+  count = var.enabled && length(var.enabled_caches) > 0 && length(local.database_subnet_cidrs) > 0 ? 1 : 0
 
   name       = "${local.name_prefix}-cache"
   subnet_ids = aws_subnet.database[*].id
@@ -215,7 +215,7 @@ resource "aws_elasticache_subnet_group" "cache" {
 # ----
 
 resource "aws_subnet" "nonroutable" {
-  count = local.create_resources && local.effective_config.nonroutable_subnets_enabled ? length(local.nonroutable_subnet_cidrs) : 0
+  count = var.enabled && local.effective_config.nonroutable_subnets_enabled ? length(local.nonroutable_subnet_cidrs) : 0
 
   vpc_id                          = aws_vpc.main[0].id
   cidr_block                      = local.nonroutable_subnet_cidrs[count.index]
@@ -239,7 +239,7 @@ resource "aws_subnet" "nonroutable" {
 # ----
 
 resource "aws_eip" "nat" {
-  count = local.create_resources && local.effective_config.nat_gateway_enabled ? local.nat_gateway_count : 0
+  count = var.enabled && local.effective_config.nat_gateway_enabled ? local.nat_gateway_count : 0
 
   domain = "vpc"
 
@@ -258,7 +258,7 @@ resource "aws_eip" "nat" {
 # ----
 
 resource "aws_nat_gateway" "main" {
-  count = local.create_resources && local.effective_config.nat_gateway_enabled ? local.nat_gateway_count : 0
+  count = var.enabled && local.effective_config.nat_gateway_enabled ? local.nat_gateway_count : 0
 
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
@@ -278,7 +278,7 @@ resource "aws_nat_gateway" "main" {
 # ----
 
 resource "aws_route_table" "public" {
-  count = local.create_resources && length(local.public_subnet_cidrs) > 0 && var.igw_enabled ? 1 : 0
+  count = var.enabled && length(local.public_subnet_cidrs) > 0 && var.igw_enabled ? 1 : 0
 
   vpc_id = aws_vpc.main[0].id
 
@@ -291,7 +291,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public_internet_gateway" {
-  count = local.create_resources && length(local.public_subnet_cidrs) > 0 && var.igw_enabled ? 1 : 0
+  count = var.enabled && length(local.public_subnet_cidrs) > 0 && var.igw_enabled ? 1 : 0
 
   route_table_id         = aws_route_table.public[0].id
   destination_cidr_block = "0.0.0.0/0"
@@ -303,7 +303,7 @@ resource "aws_route" "public_internet_gateway" {
 }
 
 resource "aws_route" "public_internet_gateway_ipv6" {
-  count = local.create_resources && var.ipv6_enabled && length(local.public_subnet_cidrs) > 0 && var.igw_enabled ? 1 : 0
+  count = var.enabled && var.ipv6_enabled && length(local.public_subnet_cidrs) > 0 && var.igw_enabled ? 1 : 0
 
   route_table_id              = aws_route_table.public[0].id
   destination_ipv6_cidr_block = "::/0"
@@ -315,7 +315,7 @@ resource "aws_route" "public_internet_gateway_ipv6" {
 }
 
 resource "aws_route_table_association" "public" {
-  count = local.create_resources ? length(local.public_subnet_cidrs) : 0
+  count = var.enabled ? length(local.public_subnet_cidrs) : 0
 
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public[0].id
@@ -326,7 +326,7 @@ resource "aws_route_table_association" "public" {
 # ----
 
 resource "aws_route_table" "private" {
-  count = local.create_resources && length(local.private_subnet_cidrs) > 0 ? (local.nat_gateway_count == 1 ? 1 : length(local.private_subnet_cidrs)) : 0
+  count = var.enabled && length(local.private_subnet_cidrs) > 0 ? (local.nat_gateway_count == 1 ? 1 : length(local.private_subnet_cidrs)) : 0
 
   vpc_id = aws_vpc.main[0].id
 
@@ -339,7 +339,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route" "private_nat_gateway" {
-  count = local.create_resources && local.effective_config.nat_gateway_enabled ? (local.nat_gateway_count == 1 ? 1 : length(local.private_subnet_cidrs)) : 0
+  count = var.enabled && local.effective_config.nat_gateway_enabled ? (local.nat_gateway_count == 1 ? 1 : length(local.private_subnet_cidrs)) : 0
 
   route_table_id         = aws_route_table.private[count.index].id
   destination_cidr_block = "0.0.0.0/0"
@@ -351,7 +351,7 @@ resource "aws_route" "private_nat_gateway" {
 }
 
 resource "aws_route" "private_egress_only_internet_gateway_ipv6" {
-  count = local.create_resources && var.ipv6_enabled ? (local.nat_gateway_count == 1 ? 1 : length(local.private_subnet_cidrs)) : 0
+  count = var.enabled && var.ipv6_enabled ? (local.nat_gateway_count == 1 ? 1 : length(local.private_subnet_cidrs)) : 0
 
   route_table_id              = aws_route_table.private[count.index].id
   destination_ipv6_cidr_block = "::/0"
@@ -363,14 +363,14 @@ resource "aws_route" "private_egress_only_internet_gateway_ipv6" {
 }
 
 resource "aws_route_table_association" "private" {
-  count = local.create_resources ? length(local.private_subnet_cidrs) : 0
+  count = var.enabled ? length(local.private_subnet_cidrs) : 0
 
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[local.nat_gateway_count == 1 ? 0 : count.index].id
 }
 
 resource "aws_route_table_association" "nonroutable" {
-  count = local.create_resources && local.effective_config.nonroutable_subnets_enabled ? length(local.nonroutable_subnet_cidrs) : 0
+  count = var.enabled && local.effective_config.nonroutable_subnets_enabled ? length(local.nonroutable_subnet_cidrs) : 0
 
   subnet_id      = aws_subnet.nonroutable[count.index].id
   route_table_id = aws_route_table.private[local.nat_gateway_count == 1 ? 0 : count.index].id
@@ -381,7 +381,7 @@ resource "aws_route_table_association" "nonroutable" {
 # ----
 
 resource "aws_route_table" "database" {
-  count = local.create_resources && length(local.database_subnet_cidrs) > 0 && var.create_database_route_table ? (local.nat_gateway_count == 1 ? 1 : length(local.database_subnet_cidrs)) : 0
+  count = var.enabled && length(local.database_subnet_cidrs) > 0 && var.create_database_route_table ? (local.nat_gateway_count == 1 ? 1 : length(local.database_subnet_cidrs)) : 0
 
   vpc_id = aws_vpc.main[0].id
 
@@ -396,7 +396,7 @@ resource "aws_route_table" "database" {
 
 
 resource "aws_route_table_association" "database" {
-  count = local.create_resources && length(local.database_subnet_cidrs) > 0 && var.create_database_route_table ? length(local.database_subnet_cidrs) : 0
+  count = var.enabled && length(local.database_subnet_cidrs) > 0 && var.create_database_route_table ? length(local.database_subnet_cidrs) : 0
 
   subnet_id      = aws_subnet.database[count.index].id
   route_table_id = aws_route_table.database[local.nat_gateway_count == 1 ? 0 : count.index].id
@@ -408,7 +408,7 @@ resource "aws_route_table_association" "database" {
 # ----
 
 resource "aws_default_route_table" "default" {
-  count = local.create_resources ? 1 : 0
+  count = var.enabled ? 1 : 0
 
   default_route_table_id = aws_vpc.main[0].default_route_table_id
 
@@ -425,7 +425,7 @@ resource "aws_default_route_table" "default" {
 # ----
 
 resource "aws_default_network_acl" "default" {
-  count = local.create_resources ? 1 : 0
+  count = var.enabled ? 1 : 0
 
   default_network_acl_id = aws_vpc.main[0].default_network_acl_id
 
@@ -477,7 +477,7 @@ resource "aws_default_network_acl" "default" {
 # ----
 
 resource "aws_default_security_group" "default" {
-  count = local.create_resources ? 1 : 0
+  count = var.enabled ? 1 : 0
 
   vpc_id = aws_vpc.main[0].id
   tags = merge(
@@ -492,12 +492,12 @@ resource "aws_default_security_group" "default" {
 module "lb_security_group" {
   source = "./modules/security-group"
 
-  enabled = local.create_resources
+  enabled = var.enabled
 
   name              = "${var.name_prefix}-lb-sg"
   description       = "Load balancer security group with VPC access and HTTPS ingress"
-  vpc_id            = local.create_resources ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = local.create_resources ? aws_vpc.main[0].cidr_block : null
+  vpc_id            = var.enabled ? aws_vpc.main[0].id : null
+  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "public"
 
@@ -537,12 +537,12 @@ module "lb_security_group" {
 module "db_security_group" {
   source = "./modules/security-group"
 
-  enabled = local.create_resources && length(var.enabled_databases) > 0
+  enabled = var.enabled && length(var.enabled_databases) > 0
 
   name              = "${var.name_prefix}-db-sg"
   description       = "Database security group with VPC non-public DB ingress"
-  vpc_id            = local.create_resources ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = local.create_resources ? aws_vpc.main[0].cidr_block : null
+  vpc_id            = var.enabled ? aws_vpc.main[0].id : null
+  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "database"
 
@@ -563,12 +563,12 @@ module "db_security_group" {
 module "cache_security_group" {
   source = "./modules/security-group"
 
-  enabled = local.create_resources && length(var.enabled_caches) > 0
+  enabled = var.enabled && length(var.enabled_caches) > 0
 
   name              = "${var.name_prefix}-cache-sg"
   description       = "Cache security group with VPC non-public cache ingress"
-  vpc_id            = local.create_resources ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = local.create_resources ? aws_vpc.main[0].cidr_block : null
+  vpc_id            = var.enabled ? aws_vpc.main[0].id : null
+  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "cache"
 
@@ -589,12 +589,12 @@ module "cache_security_group" {
 module "vpc_security_group" {
   source = "./modules/security-group"
 
-  enabled = local.create_resources
+  enabled = var.enabled
 
   name              = "${var.name_prefix}-vpc-sg"
   description       = "VPC-only security group with VPC traffic only"
-  vpc_id            = local.create_resources ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = local.create_resources ? aws_vpc.main[0].cidr_block : null
+  vpc_id            = var.enabled ? aws_vpc.main[0].id : null
+  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "vpconly"
 
@@ -604,14 +604,14 @@ module "vpc_security_group" {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
-      cidr_blocks = local.create_resources ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
+      cidr_blocks = var.enabled ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
     },
     {
       description      = "All traffic from VPC IPv6"
       from_port        = 0
       to_port          = 0
       protocol         = "-1"
-      ipv6_cidr_blocks = local.create_resources && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
+      ipv6_cidr_blocks = var.enabled && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
     }
   ]
 
@@ -621,14 +621,14 @@ module "vpc_security_group" {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
-      cidr_blocks = local.create_resources ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
+      cidr_blocks = var.enabled ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
     },
     {
       description      = "All traffic to VPC IPv6"
       from_port        = 0
       to_port          = 0
       protocol         = "-1"
-      ipv6_cidr_blocks = local.create_resources && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
+      ipv6_cidr_blocks = var.enabled && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
     }
   ]
 
@@ -638,12 +638,12 @@ module "vpc_security_group" {
 module "endpoint_security_group" {
   source = "./modules/security-group"
 
-  enabled = local.create_resources
+  enabled = var.enabled
 
   name              = "${var.name_prefix}-endpoint-sg"
   description       = "Endpoint security group with VPC non-public HTTPS ingress"
-  vpc_id            = local.create_resources ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = local.create_resources ? aws_vpc.main[0].cidr_block : null
+  vpc_id            = var.enabled ? aws_vpc.main[0].id : null
+  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "endpoint"
 
@@ -664,12 +664,12 @@ module "endpoint_security_group" {
 module "app_security_group" {
   source = "./modules/security-group"
 
-  enabled = local.create_resources
+  enabled = var.enabled
 
   name              = "${var.name_prefix}-app-sg"
   description       = "Application security group with VPC access and HTTPS egress"
-  vpc_id            = local.create_resources ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = local.create_resources ? aws_vpc.main[0].cidr_block : null
+  vpc_id            = var.enabled ? aws_vpc.main[0].id : null
+  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "private"
 
@@ -679,14 +679,14 @@ module "app_security_group" {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
-      cidr_blocks = local.create_resources ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
+      cidr_blocks = var.enabled ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
     },
     {
       description      = "All traffic from VPC IPv6"
       from_port        = 0
       to_port          = 0
       protocol         = "-1"
-      ipv6_cidr_blocks = local.create_resources && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
+      ipv6_cidr_blocks = var.enabled && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
     }
   ]
 
@@ -710,14 +710,14 @@ module "app_security_group" {
       from_port   = 0
       to_port     = 0
       protocol    = "-1"
-      cidr_blocks = local.create_resources ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
+      cidr_blocks = var.enabled ? concat([aws_vpc.main[0].cidr_block], local.nonroutable_subnet_cidrs) : []
     },
     {
       description      = "All traffic to VPC IPv6"
       from_port        = 0
       to_port          = 0
       protocol         = "-1"
-      ipv6_cidr_blocks = local.create_resources && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
+      ipv6_cidr_blocks = var.enabled && var.ipv6_enabled ? [aws_vpc.main[0].ipv6_cidr_block] : []
     }
   ]
 

@@ -110,10 +110,6 @@ locals {
     local.environment_defaults[var.environment_type]
   )
 
-  # Detect if running in test environment and control resource creation
-  is_test_environment = var.dry_run_mode || var.use_mock_azs
-  create_resources    = var.enabled && !local.is_test_environment
-
   # AWS account, partition, and region info
   account_id         = data.aws_caller_identity.current.account_id
   partition          = data.aws_partition.current.partition
@@ -131,15 +127,8 @@ locals {
 
   name_prefix = var.name_prefix
 
-  # Mock AZs for testing when SCP blocks DescribeAvailabilityZones
-  mock_availability_zones = [
-    "${local.region}a",
-    "${local.region}b",
-    "${local.region}c"
-  ]
-
-  # Get availability zones from data source or use mock
-  availability_zones = var.use_mock_azs ? local.mock_availability_zones : data.aws_availability_zones.available[0].names
+  # Get availability zones from data source
+  availability_zones = data.aws_availability_zones.available.names
 
   # Select AZs based on allowed list or randomly from all available
   available_azs = length(var.allowed_availability_zone_ids) > 0 ? (
@@ -149,8 +138,8 @@ locals {
   )
   azs = local.available_azs
 
-  ipv4_cidr_block = local.create_resources ? aws_vpc.main[0].cidr_block : (var.ipam_pool_enabled ? "10.0.0.0/24" : var.cidr_primary)
-  ipv6_cidr_block = local.create_resources && var.ipv6_enabled ? aws_vpc.main[0].ipv6_cidr_block : (var.ipv6_enabled ? "2001:db8::/56" : null)
+  ipv4_cidr_block = var.enabled ? aws_vpc.main[0].cidr_block : (var.ipam_pool_enabled ? "10.0.0.0/24" : var.cidr_primary)
+  ipv6_cidr_block = var.enabled && var.ipv6_enabled ? aws_vpc.main[0].ipv6_cidr_block : (var.ipv6_enabled ? "2001:db8::/56" : null)
 
   # Calculate subnet counts based on consensus protocol requirements
   private_subnet_count     = min(local.effective_config.az_count, length(local.availability_zones))
@@ -164,8 +153,8 @@ locals {
   ) : 0
 
   # VPC Endpoints configuration
-  gateway_endpoints_enabled   = local.create_resources && length(var.gateway_endpoints) > 0
-  interface_endpoints_enabled = local.create_resources && length(var.interface_endpoints) > 0
+  gateway_endpoints_enabled   = var.enabled && length(var.gateway_endpoints) > 0
+  interface_endpoints_enabled = var.enabled && length(var.interface_endpoints) > 0
 
   # Calculate Interface Endpoints count for pricing
   interface_endpoints_count = length(var.interface_endpoints)

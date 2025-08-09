@@ -194,7 +194,6 @@ This eliminates the need to manage different subnet IDs variable values for each
 | <a name="input_desired_database_subnet_count"></a> [desired\_database\_subnet\_count](#input\_desired\_database\_subnet\_count) | Number of database subnets to create | `number` | `2` | no |
 | <a name="input_dns_hostnames_enabled"></a> [dns\_hostnames\_enabled](#input\_dns\_hostnames\_enabled) | Should be true to enable DNS hostnames in the VPC | `bool` | `true` | no |
 | <a name="input_dns_support_enabled"></a> [dns\_support\_enabled](#input\_dns\_support\_enabled) | Should be true to enable DNS support in the VPC | `bool` | `true` | no |
-| <a name="input_dry_run_mode"></a> [dry\_run\_mode](#input\_dry\_run\_mode) | Enable dry-run mode for validation without creating AWS resources (useful for testing with restricted SCPs) | `bool` | `false` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `true` | no |
 | <a name="input_enabled_caches"></a> [enabled\_caches](#input\_enabled\_caches) | List of cache types to enable security group rules for | `list(string)` | <pre>[<br/>  "redis"<br/>]</pre> | no |
 | <a name="input_enabled_databases"></a> [enabled\_databases](#input\_enabled\_databases) | List of database types to enable security group rules for | `list(string)` | <pre>[<br/>  "postgres"<br/>]</pre> | no |
@@ -227,7 +226,6 @@ This eliminates the need to manage different subnet IDs variable values for each
 | <a name="input_transit_gateway_default_route_table_propagation"></a> [transit\_gateway\_default\_route\_table\_propagation](#input\_transit\_gateway\_default\_route\_table\_propagation) | Enable route propagation to the Transit Gateway default route table | `bool` | `true` | no |
 | <a name="input_transit_gateway_id"></a> [transit\_gateway\_id](#input\_transit\_gateway\_id) | ID of the Transit Gateway to attach the VPC to | `string` | `null` | no |
 | <a name="input_transit_gateway_route_table_id"></a> [transit\_gateway\_route\_table\_id](#input\_transit\_gateway\_route\_table\_id) | ID of the Transit Gateway route table to associate with the attachment | `string` | `null` | no |
-| <a name="input_use_mock_azs"></a> [use\_mock\_azs](#input\_use\_mock\_azs) | Use mock availability zones instead of querying AWS (useful for testing with restricted SCPs) | `bool` | `false` | no |
 | <a name="input_vpc_flow_logs_custom_format"></a> [vpc\_flow\_logs\_custom\_format](#input\_vpc\_flow\_logs\_custom\_format) | Custom format for VPC Flow Logs. If null, default format will be used | `string` | `null` | no |
 | <a name="input_vpc_flow_logs_enabled"></a> [vpc\_flow\_logs\_enabled](#input\_vpc\_flow\_logs\_enabled) | Enable VPC Flow Logs | `bool` | `false` | no |
 | <a name="input_vpc_flow_logs_kms_key_id"></a> [vpc\_flow\_logs\_kms\_key\_id](#input\_vpc\_flow\_logs\_kms\_key\_id) | KMS Key ID for encrypting VPC Flow Logs. If null, a customer-managed key will be created | `string` | `null` | no |
