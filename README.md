@@ -1,50 +1,20 @@
-# Brockhoff Cloud Terraform Module
+# AWS VPC Terraform Module
 
-> **📋 Template Setup Instructions**
->
-> After cloning this template repository, complete these setup steps:
->
-> 1. **Configure GitHub repository settings:**
->    - Under **Settings → Actions → General**
->      - Enable **Allow all actions and reusable workflows**
->      - Set **Workflow permissions** to "Read and write permissions"
->      - Enable **Workflow permissions** "Allow GitHub Actions to create and approve pull requests"
->
-> 2. **Configure repository secrets:**
->    - Under **Settings → Environments**
->      - Create `development` environment
->      - Add `AWS_ROLE_ARN` secret for GitHub Actions AWS access to your AWS development account
->    - Under **Settings → Secrets and variables → Actions → Repository secrets**
->      - Add `RELEASE_PLEASE_TOKEN` secret (Personal Access Token with repo permissions)
->    - For AWS authentication, ensure your IAM role has cross-account trust with GitHub OIDC
->
-> 3. **Configure main branch protection:**
->    - Under **Settings → Rules → Rulesets**
->      - Create new ruleset which applies to default branch and is set to Active
->      - Enable **Require a pull request before merging**
->      - Enable other rules as needed for your workflow
->
-> 4. **Replace placeholder text:**
->    - Find and replace all instances of `replace-me` with your actual module name
->    - Find and replace all instances of `replace` with appropriate values
->    - Update `CLOUD` and `XXX` placeholders with your target cloud provider and resources
->
-> 5. **Update module metadata:**
->    - Modify `locals.tf` → `ModuleName` to match your module using Terraform registry naming conventions
->    - Update repository URLs and documentation
->    - Customize examples and tests for your specific resources
-
-Terraform module which creates XXX resources on CLOUD. It takes an opinionated 
-approach to resource placement, naming, tagging, and well-architected best 
-practices.
+Terraform module which creates VPC resources on AWS. It takes an opinionated approach on dividing up
+and configuring subnets. Resources have standardized tags which enable deployment of resources
+into the VPC across multiple environments without having to specify VPC, subnet, or security group ids.
 
 ## Features
 
-- Feature 1
-- Feature 2
-- Feature 3
-- Monthly cost estimate submodule
-- Deployment pipeline least privilege IAM role submodule
+- Complete VPC with public, private, database, and non-routable subnets
+- IPv4 and IPv6 support with proper CIDR allocation
+- NAT Gateways with single or multi-AZ resilience options
+- VPC Endpoints for S3, DynamoDB, and other AWS services
+- Security Groups with predefined named rules for common services
+- Flow logs with CloudWatch integration and KMS encryption
+- Network ACLs with sensible defaults
+- Database subnet groups for RDS deployment
+- Support for IPAM pool allocation
 
 ## Usage
 

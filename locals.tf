@@ -67,11 +67,11 @@ locals {
   reverse_dns_prefix = data.aws_partition.current.reverse_dns_prefix
 
   common_tags = merge(var.tags, {
-    ModuleName    = "kbrockhoff/replace-me/provider"
+    ModuleName    = "kbrockhoff/vpc/aws"
     ModuleVersion = local.module_version
     ModuleEnvType = var.environment_type
   })
-  common_data_tags = merge(var.data_tags, local.common_tags)
+  common_data_tags = merge(local.common_tags, var.data_tags)
 
   name_prefix = var.name_prefix
 
