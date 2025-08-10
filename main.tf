@@ -3,7 +3,8 @@
 # ----
 
 module "subnets" {
-  source = "hashicorp/subnets/cidr"
+  source  = "hashicorp/subnets/cidr"
+  version = "1.0.0"
 
   base_cidr_block = local.ipv4_cidr_block
   networks = concat(
@@ -120,7 +121,7 @@ resource "aws_subnet" "public" {
   cidr_block                      = local.public_subnet_cidrs[count.index]
   ipv6_cidr_block                 = var.ipv6_enabled ? local.public_subnet_ipv6_cidrs[count.index] : null
   availability_zone               = local.azs[count.index]
-  map_public_ip_on_launch         = var.map_public_ip_on_launch
+  map_public_ip_on_launch         = false
   assign_ipv6_address_on_creation = var.ipv6_enabled
 
   tags = merge(

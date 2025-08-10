@@ -37,7 +37,6 @@ module "main" {
   ipv6_enabled                                    = var.ipv6_enabled
   block_public_access_enabled                     = var.block_public_access_enabled
   igw_enabled                                     = var.igw_enabled
-  map_public_ip_on_launch                         = var.map_public_ip_on_launch
   create_database_route_table                     = var.create_database_route_table
   nat_gateway_enabled                             = var.nat_gateway_enabled
   resilient_natgateway_enabled                    = var.resilient_natgateway_enabled

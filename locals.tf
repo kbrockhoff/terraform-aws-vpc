@@ -119,7 +119,7 @@ locals {
 
   # Common tags for all resources including module metadata
   common_tags = merge(var.tags, {
-    ModuleName    = "kbrockhoff/replace-me/provider"
+    ModuleName    = "kbrockhoff/vpc/aws"
     ModuleVersion = local.module_version
     ModuleEnvType = var.environment_type
   })
@@ -165,6 +165,13 @@ locals {
     local.private_subnet_count
   )
 
+  ################################################################################
+  # WARNING: CORE ALGORITHM - MODIFICATIONS REQUIRE ARCHITECTURE REVIEW
+  # This section performs complex calculations for subnet CIDRs that optimize IP
+  # space usage while maintaining AWS subnet requirements (minimum /28).
+  # Changes here have previously caused incorrect CIDR block allocations.
+  ################################################################################
+
   # Calculate subnet sizing based on VPC CIDR and required subnet count
   # Total subnets needed: public count + private count + database count
   total_subnets_needed = local.public_subnet_count + local.private_subnet_count + local.database_subnet_count
@@ -195,7 +202,6 @@ locals {
     "100.68.0.0/16",
     "100.69.0.0/16",
   ]
-
 
   # Calculate subnet CIDRs based on requirements
   # Public subnets: extract from individual subnet definitions
@@ -233,4 +239,10 @@ locals {
     for i in range(local.nonroutable_subnet_count) :
     cidrsubnet(local.ipv6_cidr_block, 8, i + local.public_subnet_count + local.private_subnet_count + local.database_subnet_count)
   ] : []
+
+  ################################################################################
+  # END: CORE ALGORITHM
+  ################################################################################
+
+
 }

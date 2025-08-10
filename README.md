@@ -131,7 +131,7 @@ This eliminates the need to manage different subnet IDs variable values for each
 | <a name="module_endpoint_security_group"></a> [endpoint\_security\_group](#module\_endpoint\_security\_group) | ./modules/security-group | n/a |
 | <a name="module_lb_security_group"></a> [lb\_security\_group](#module\_lb\_security\_group) | ./modules/security-group | n/a |
 | <a name="module_pricing"></a> [pricing](#module\_pricing) | ./modules/pricing | n/a |
-| <a name="module_subnets"></a> [subnets](#module\_subnets) | hashicorp/subnets/cidr | n/a |
+| <a name="module_subnets"></a> [subnets](#module\_subnets) | hashicorp/subnets/cidr | 1.0.0 |
 | <a name="module_vpc_endpoints"></a> [vpc\_endpoints](#module\_vpc\_endpoints) | ./modules/vpc-endpoints | n/a |
 | <a name="module_vpc_security_group"></a> [vpc\_security\_group](#module\_vpc\_security\_group) | ./modules/security-group | n/a |
 
@@ -214,7 +214,6 @@ This eliminates the need to manage different subnet IDs variable values for each
 | <a name="input_ipv6_ipam_pool_enabled"></a> [ipv6\_ipam\_pool\_enabled](#input\_ipv6\_ipam\_pool\_enabled) | Enable IPv6 IPAM pool for VPC CIDR allocation | `bool` | `false` | no |
 | <a name="input_ipv6_ipam_pool_id"></a> [ipv6\_ipam\_pool\_id](#input\_ipv6\_ipam\_pool\_id) | The ID of an IPv6 IPAM pool you want to use for allocating this VPC's CIDR | `string` | `null` | no |
 | <a name="input_ipv6_netmask_length"></a> [ipv6\_netmask\_length](#input\_ipv6\_netmask\_length) | The netmask length of the IPv6 CIDR you want to allocate to this VPC | `number` | `56` | no |
-| <a name="input_map_public_ip_on_launch"></a> [map\_public\_ip\_on\_launch](#input\_map\_public\_ip\_on\_launch) | Should be false if you do not want to auto-assign public IP for public subnets | `bool` | `true` | no |
 | <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Should be true if you want to provision NAT Gateways for each of your private networks | `bool` | `true` | no |
 | <a name="input_networktags_name"></a> [networktags\_name](#input\_networktags\_name) | Name of the network tags key used for subnet classification | `string` | `"NetworkTags"` | no |
 | <a name="input_nonroutable_subnets_enabled"></a> [nonroutable\_subnets\_enabled](#input\_nonroutable\_subnets\_enabled) | Enable creation of non-routable subnets for EKS pods | `bool` | `true` | no |

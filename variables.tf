@@ -182,20 +182,6 @@ variable "igw_enabled" {
 }
 
 # ----
-# Public Subnets
-# ----
-
-variable "map_public_ip_on_launch" {
-  description = "Should be false if you do not want to auto-assign public IP for public subnets"
-  type        = bool
-  default     = true
-}
-
-# ----
-# Private Subnets
-# ----
-
-# ----
 # Database Subnets
 # ----
 
