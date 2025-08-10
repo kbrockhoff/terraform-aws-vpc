@@ -117,12 +117,13 @@ locals {
   dns_suffix         = data.aws_partition.current.dns_suffix
   reverse_dns_prefix = data.aws_partition.current.reverse_dns_prefix
 
+  # Common tags for all resources including module metadata
   common_tags = merge(var.tags, {
-    ModuleName    = "kbrockhoff/vpc/aws"
+    ModuleName    = "kbrockhoff/replace-me/provider"
     ModuleVersion = local.module_version
     ModuleEnvType = var.environment_type
   })
-
+  # Data tags take precedence over common tags
   common_data_tags = merge(local.common_tags, var.data_tags)
 
   name_prefix = var.name_prefix

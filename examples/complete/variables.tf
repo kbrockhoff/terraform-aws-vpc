@@ -25,7 +25,7 @@ variable "tags" {
 }
 
 variable "data_tags" {
-  description = "Tags/labels to apply to all resources with data-at-rest"
+  description = "Additional tags to apply specifically to data storage resources (e.g., S3, RDS, EBS) beyond the common tags."
   type        = map(string)
   default     = {}
 }
