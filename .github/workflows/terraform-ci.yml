@@ -135,15 +135,15 @@ jobs:
       with:
         terraform_version: "1.12.2"
 
-    - name: Clean Terraform modules (Examples)
+    - name: Terraform Init (Examples)
       run: |
         for example in examples/*/; do
-          echo "Validating $example"
+          echo "Initializing $example"
           cd "$example"
-          rm -rf .terraform/modules
+          terraform init
           cd - > /dev/null
         done
-
+        
     - name: Run Terratest
       env:
         TF_VAR_name_prefix: "ci-test"
