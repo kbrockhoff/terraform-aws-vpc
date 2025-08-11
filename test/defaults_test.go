@@ -36,15 +36,13 @@ func TestTerraformDefaultsExample(t *testing.T) {
 	// Verify the plan completed without errors and shows expected resource creation
 	assert.NotEmpty(t, planOutput)
 	
-	// Verify core KMS resources are planned for creation
-	assert.Contains(t, planOutput, "module.main.aws_kms_key.main[0]")
-	assert.Contains(t, planOutput, "module.main.aws_kms_alias.main[0]")
+	// Verify core VPC resources are planned for creation
+	assert.Contains(t, planOutput, "aws_vpc.main")
+	assert.Contains(t, planOutput, "aws_subnet.public")
+	assert.Contains(t, planOutput, "aws_subnet.private")
 	assert.Contains(t, planOutput, "will be created")
 	
-	// Verify SNS topic is NOT created by default (alarms_enabled=false)
-	assert.NotContains(t, planOutput, "module.main.aws_sns_topic.alarms")
-	
-	// Verify expected resource count (2 resources: KMS key + alias)
-	assert.Contains(t, planOutput, "2 to add, 0 to change, 0 to destroy")
+	// Verify expected resource count (should have VPC and related resources)
+	assert.Contains(t, planOutput, "40 to add, 0 to change, 0 to destroy")
 
 }

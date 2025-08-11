@@ -93,46 +93,57 @@ locals {
   # Get the correct location name for pricing API queries
   pricing_location = lookup(local.region_location_map, var.region, "US East (N. Virginia)")
 
-  # KMS pricing calculations
-  kms_on_demand = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.kms[0].result).terms.OnDemand) ? (
-    values(jsondecode(data.aws_pricing_product.kms[0].result).terms.OnDemand)
-  ) : []
-  kms_monthly = length(local.kms_on_demand) > 0 ? (
-    values(local.kms_on_demand[0].priceDimensions)[0].pricePerUnit.USD
-  ) : "1.00"
+  # Extract hourly rates from pricing data
+  nat_gateway_hourly = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.nat_gateway[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.nat_gateway[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "0.045"
 
-  # CloudWatch Metrics pricing calculations
-  cloudwatch_metrics_on_demand = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.cloudwatch_metrics[0].result).terms.OnDemand) ? (
-    values(jsondecode(data.aws_pricing_product.cloudwatch_metrics[0].result).terms.OnDemand)
-  ) : []
-  cloudwatch_metrics_monthly = length(local.cloudwatch_metrics_on_demand) > 0 ? (
-    values(local.cloudwatch_metrics_on_demand[0].priceDimensions)[0].pricePerUnit.USD
-  ) : "0.30"
+  nat_gateway_data_per_gb = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.nat_gateway_data[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.nat_gateway_data[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "0.045"
 
-  # CloudWatch Alarms pricing calculations
-  cloudwatch_alarms_on_demand = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.cloudwatch_alarms[0].result).terms.OnDemand) ? (
-    values(jsondecode(data.aws_pricing_product.cloudwatch_alarms[0].result).terms.OnDemand)
-  ) : []
-  cloudwatch_alarms_monthly = length(local.cloudwatch_alarms_on_demand) > 0 ? (
-    values(local.cloudwatch_alarms_on_demand[0].priceDimensions)[0].pricePerUnit.USD
-  ) : "0.10"
+  vpc_endpoint_hourly = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.vpc_endpoint[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.vpc_endpoint[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "0.01"
 
-  # SNS Requests pricing calculations
-  sns_requests_on_demand = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.sns_requests[0].result).terms.OnDemand) ? (
-    values(jsondecode(data.aws_pricing_product.sns_requests[0].result).terms.OnDemand)
-  ) : []
-  sns_requests_per_unit = length(local.sns_requests_on_demand) > 0 ? (
-    values(local.sns_requests_on_demand[0].priceDimensions)[0].pricePerUnit.USD
-  ) : "0.0000005" # Default: $0.50 per million requests
+  vpc_endpoint_data_per_gb = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.vpc_endpoint_data[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.vpc_endpoint_data[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "0.01"
 
-  # Calculate SNS requests based on CloudWatch alarms (720 = 24 hours * 30 days, assuming 1 alarm per hour)
-  sns_requests_per_month = var.cloudwatch_alarm_count * 720
+  cloudwatch_logs_ingestion_per_gb = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.cloudwatch_logs[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.cloudwatch_logs[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "0.50"
 
+  cloudwatch_storage_per_gb_month = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.cloudwatch_storage[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.cloudwatch_storage[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "0.0276"
+
+  kms_monthly = local.pricing_enabled && can(jsondecode(data.aws_pricing_product.kms[0].result).terms.OnDemand) ? values(values(jsondecode(data.aws_pricing_product.kms[0].result).terms.OnDemand)[0].priceDimensions)[0].pricePerUnit.USD : "1.00"
+
+  # Calculate total interface endpoint instances (endpoints * AZs)
+  total_interface_endpoint_instances = var.interface_endpoints_count * var.interface_endpoints_az_count
+
+  # Data transfer calculations (convert MB/hour to GB/month)
+  data_transfer_gb_per_month = (var.data_transfer_mb_per_hour * 24 * 30) / 1024
+
+  # Cost calculations (monthly)
   costs = {
-    kms_keys           = var.kms_key_count * tonumber(local.kms_monthly)
-    cloudwatch_metrics = var.cloudwatch_metric_count * tonumber(local.cloudwatch_metrics_monthly)
-    cloudwatch_alarms  = var.cloudwatch_alarm_count * tonumber(local.cloudwatch_alarms_monthly)
-    sns_requests       = local.sns_requests_per_month * tonumber(local.sns_requests_per_unit)
+    # NAT Gateway costs
+    nat_gateway_fixed = var.nat_gateway_count * tonumber(local.nat_gateway_hourly) * 24 * 30
+    nat_gateway_data  = var.nat_gateway_count > 0 ? local.data_transfer_gb_per_month * tonumber(local.nat_gateway_data_per_gb) : 0
+
+    # VPC Flow Logs costs (first 5GB free for ingestion)
+    flow_logs_ingestion = var.vpc_flow_logs_enabled ? max(0, local.data_transfer_gb_per_month - 5) * tonumber(local.cloudwatch_logs_ingestion_per_gb) : 0
+    flow_logs_storage   = var.vpc_flow_logs_enabled ? max(0, local.data_transfer_gb_per_month - 5) * tonumber(local.cloudwatch_storage_per_gb_month) : 0
+
+    # KMS Key costs
+    kms_keys = var.create_vpc_flow_logs_kms_key && var.vpc_flow_logs_enabled ? tonumber(local.kms_monthly) : 0
+
+    # VPC Endpoints costs
+    interface_endpoints_fixed = local.total_interface_endpoint_instances * tonumber(local.vpc_endpoint_hourly) * 24 * 30
+    interface_endpoints_data  = local.total_interface_endpoint_instances > 0 ? local.data_transfer_gb_per_month * tonumber(local.vpc_endpoint_data_per_gb) : 0
+
+    # Gateway endpoints (S3, DynamoDB) are free
+    gateway_endpoints = 0
   }
-  total_monthly_cost = local.costs.kms_keys + local.costs.cloudwatch_metrics + local.costs.cloudwatch_alarms + local.costs.sns_requests
+
+  # Total monthly cost estimate
+  total_monthly_cost = (
+    local.costs.nat_gateway_fixed +
+    local.costs.nat_gateway_data +
+    local.costs.flow_logs_ingestion +
+    local.costs.flow_logs_storage +
+    local.costs.kms_keys +
+    local.costs.interface_endpoints_fixed +
+    local.costs.interface_endpoints_data +
+    local.costs.gateway_endpoints
+  )
 }

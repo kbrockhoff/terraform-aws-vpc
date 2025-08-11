@@ -1,22 +1,20 @@
 # Github Actions IAM Terraform Module
 
-This module creates an IAM role that can be assumed by GitHub Actions workflows. 
-The role is configured with least privilege permissions needed to provision
-and deprovision the parent module's resources.
+This module creates an IAM role that can be assumed by GitHub Actions workflows. The role is configured with least privilege permissions needed to provision and deprovision the parent module's resources.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.6.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.8.0 |
 
 ## Modules
 
@@ -26,9 +24,17 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_iam_policy.basic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.aws_services](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.ec2_describe](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.iam_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.vpc_core](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.vpc_networking](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.github_actions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.basic](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.aws_services](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.ec2_describe](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.iam_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.vpc_core](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.vpc_networking](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 
 ## Inputs
 
@@ -50,8 +56,12 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_github_actions_policy_arn"></a> [github\_actions\_policy\_arn](#output\_github\_actions\_policy\_arn) | ARN of the GitHub Actions IAM policy |
-| <a name="output_github_actions_policy_name"></a> [github\_actions\_policy\_name](#output\_github\_actions\_policy\_name) | Name of the GitHub Actions IAM policy |
+| <a name="output_aws_services_policy_arn"></a> [aws\_services\_policy\_arn](#output\_aws\_services\_policy\_arn) | ARN of the AWS services policy |
+| <a name="output_ec2_describe_policy_arn"></a> [ec2\_describe\_policy\_arn](#output\_ec2\_describe\_policy\_arn) | ARN of the EC2 describe policy |
 | <a name="output_github_actions_role_arn"></a> [github\_actions\_role\_arn](#output\_github\_actions\_role\_arn) | ARN of the GitHub Actions IAM role |
 | <a name="output_github_actions_role_name"></a> [github\_actions\_role\_name](#output\_github\_actions\_role\_name) | Name of the GitHub Actions IAM role |
-<!-- END_TF_DOCS -->    
+| <a name="output_iam_kms_policy_arn"></a> [iam\_kms\_policy\_arn](#output\_iam\_kms\_policy\_arn) | ARN of the IAM and KMS management policy |
+| <a name="output_policy_arns"></a> [policy\_arns](#output\_policy\_arns) | List of all policy ARNs attached to the GitHub Actions role |
+| <a name="output_vpc_core_policy_arn"></a> [vpc\_core\_policy\_arn](#output\_vpc\_core\_policy\_arn) | ARN of the VPC core management policy |
+| <a name="output_vpc_networking_policy_arn"></a> [vpc\_networking\_policy\_arn](#output\_vpc\_networking\_policy\_arn) | ARN of the VPC networking policy |
+<!-- END_TF_DOCS -->

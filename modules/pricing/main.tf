@@ -1,6 +1,109 @@
 # ----
-# KMS Pricing Data
+# AWS VPC Pricing Calculator using AWS Pricing API
 # ----
+
+
+# NAT Gateway pricing
+data "aws_pricing_product" "nat_gateway" {
+  count = local.pricing_enabled ? 1 : 0
+
+  service_code = "AmazonEC2"
+
+  filters {
+    field = "productFamily"
+    value = "NAT Gateway"
+  }
+
+  filters {
+    field = "usagetype"
+    value = "NatGateway-Hours"
+  }
+}
+
+# NAT Gateway data processing pricing
+data "aws_pricing_product" "nat_gateway_data" {
+  count = local.pricing_enabled ? 1 : 0
+
+  service_code = "AmazonEC2"
+
+  filters {
+    field = "productFamily"
+    value = "NAT Gateway"
+  }
+
+  filters {
+    field = "usagetype"
+    value = "NatGateway-Bytes"
+  }
+}
+
+# VPC Interface Endpoints pricing
+data "aws_pricing_product" "vpc_endpoint" {
+  count = local.pricing_enabled ? 1 : 0
+
+  service_code = "AmazonVPC"
+
+  filters {
+    field = "productFamily"
+    value = "VpcEndpoint"
+  }
+
+  filters {
+    field = "usagetype"
+    value = "${local.usagetype_region}-VpcEndpoint-Hours"
+  }
+}
+
+# VPC Endpoint data processing pricing
+data "aws_pricing_product" "vpc_endpoint_data" {
+  count = local.pricing_enabled ? 1 : 0
+
+  service_code = "AmazonVPC"
+
+  filters {
+    field = "productFamily"
+    value = "VpcEndpoint"
+  }
+
+  filters {
+    field = "usagetype"
+    value = "${local.usagetype_region}-VpcEndpoint-Bytes"
+  }
+}
+
+# CloudWatch Logs pricing for VPC Flow Logs
+data "aws_pricing_product" "cloudwatch_logs" {
+  count = local.pricing_enabled ? 1 : 0
+
+  service_code = "AmazonCloudWatch"
+
+  filters {
+    field = "productFamily"
+    value = "Data Payload"
+  }
+
+  filters {
+    field = "usagetype"
+    value = "${local.usagetype_region}-DataProcessing-Bytes"
+  }
+}
+
+# CloudWatch Logs storage pricing
+data "aws_pricing_product" "cloudwatch_storage" {
+  count = local.pricing_enabled ? 1 : 0
+
+  service_code = "AmazonCloudWatch"
+
+  filters {
+    field = "productFamily"
+    value = "Storage Snapshot"
+  }
+
+  filters {
+    field = "usagetype"
+    value = "${local.usagetype_region}-TimedStorage-ByteHrs"
+  }
+}
 
 # KMS pricing
 data "aws_pricing_product" "kms" {
@@ -16,74 +119,5 @@ data "aws_pricing_product" "kms" {
   filters {
     field = "usagetype"
     value = "${var.region}-KMS-Keys"
-  }
-}
-
-# ----
-# CloudWatch Pricing Data
-# ----
-
-# CloudWatch standard metrics
-data "aws_pricing_product" "cloudwatch_metrics" {
-  count = local.pricing_enabled ? 1 : 0
-
-  service_code = "AmazonCloudWatch"
-
-  filters {
-    field = "productFamily"
-    value = "Metric"
-  }
-
-  filters {
-    field = "usagetype"
-    value = "${local.usagetype_region}-CW:MetricsUsage"
-  }
-
-  filters {
-    field = "location"
-    value = local.pricing_location
-  }
-}
-
-# CloudWatch alarms
-data "aws_pricing_product" "cloudwatch_alarms" {
-  count = local.pricing_enabled ? 1 : 0
-
-  service_code = "AmazonCloudWatch"
-
-  filters {
-    field = "productFamily"
-    value = "Alarm"
-  }
-
-  filters {
-    field = "usagetype"
-    value = "CW:AlarmMonitorUsage"
-  }
-
-  filters {
-    field = "location"
-    value = local.pricing_location
-  }
-}
-
-# ----
-# SNS Pricing Data
-# ----
-
-# SNS topics pricing
-data "aws_pricing_product" "sns_requests" {
-  count = local.pricing_enabled ? 1 : 0
-
-  service_code = "AmazonSNS"
-
-  filters {
-    field = "productFamily"
-    value = "API Request"
-  }
-
-  filters {
-    field = "location"
-    value = local.pricing_location
   }
 }

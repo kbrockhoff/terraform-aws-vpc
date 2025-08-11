@@ -17,8 +17,8 @@ module "main" {
     aws.pricing = aws.pricing
   }
 
-  name_prefix = var.name_prefix
-  tags = {
-    Example = "defaults"
-  }
+  name_prefix      = var.name_prefix
+  cidr_primary     = var.cidr_primary
+  environment_type = var.environment_type
+  tags             = var.tags
 }

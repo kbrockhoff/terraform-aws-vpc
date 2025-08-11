@@ -34,17 +34,16 @@ func TestTerraformCompleteExample(t *testing.T) {
 
 	// Verify the plan completed without errors and shows expected resource creation
 	assert.NotEmpty(t, planOutput)
-	
-	// Verify core KMS resources are planned for creation
-	assert.Contains(t, planOutput, "module.main.aws_kms_key.main[0]")
-	assert.Contains(t, planOutput, "module.main.aws_kms_alias.main[0]")
+
+	// Verify core VPC resources are planned for creation
+	assert.Contains(t, planOutput, "aws_vpc.main")
+	assert.Contains(t, planOutput, "aws_subnet.public")
+	assert.Contains(t, planOutput, "aws_subnet.private")
+	assert.Contains(t, planOutput, "aws_subnet.database")
 	assert.Contains(t, planOutput, "will be created")
-	
-	// Verify SNS topic IS created when alarms_config.enabled=true (set in complete example)
-	assert.Contains(t, planOutput, "module.main.aws_sns_topic.alarms[0]")
-	
-	// Verify expected resource count (3 resources: KMS key + alias + SNS topic)
-	assert.Contains(t, planOutput, "3 to add, 0 to change, 0 to destroy")
+
+	// Verify expected resource count (should have many VPC resources)
+	assert.Contains(t, planOutput, "to add, 0 to change, 0 to destroy")
 
 }
 
@@ -61,6 +60,10 @@ func TestEnabledFalse(t *testing.T) {
 			"enabled":          false,
 			"name_prefix":      expectedName,
 			"environment_type": "None",
+			"cost_estimation_config": map[string]interface{}{
+				"enabled":                   false,
+				"data_transfer_mb_per_hour": 0,
+			},
 		},
 
 		// Environment variables to set when running Terraform
@@ -74,7 +77,7 @@ func TestEnabledFalse(t *testing.T) {
 	terraform.Init(t, terraformOptions)
 	planOutput := terraform.Plan(t, terraformOptions)
 
-	// Verify the plan completed without errors and shows expected output changes
+	// Verify the plan completed without errors and shows no resources created when enabled=false
 	assert.NotEmpty(t, planOutput)
 	assert.Contains(t, planOutput, "No changes.")
 

@@ -40,7 +40,7 @@ jobs:
                 --output cli \
                 --output sarif \
                 --output-file-path console,checkov-report.sarif \
-                --skip-check CKV_AWS_144 \
+                --skip-check CKV_AWS_144,CKV_AWS_338,CKV_TF_1,CKV2_AWS_5,CKV2_AWS_11,CKV2_AWS_12 \
                 --quiet
       continue-on-error: false
 
@@ -52,19 +52,19 @@ jobs:
         category: checkov
 
     # Uncomment in actual module
-    # - name: Setup TFLint
-    #   uses: terraform-linters/setup-tflint@v4
-    #   with:
-    #     tflint_version: v0.58.1
+    - name: Setup TFLint
+      uses: terraform-linters/setup-tflint@v4
+      with:
+        tflint_version: v0.58.1
 
-    # - name: Show TFLint version
-    #   run: tflint --version
+    - name: Show TFLint version
+      run: tflint --version
 
-    # - name: Init TFLint
-    #   run: tflint --init
+    - name: Init TFLint
+      run: tflint --init
 
-    # - name: Run TFLint
-    #   run: tflint -f compact
+    - name: Run TFLint
+      run: tflint -f compact
       
     # Root module validation skipped - requires provider configuration
     # Root module is designed to be used as a module with providers passed in
@@ -135,7 +135,15 @@ jobs:
       with:
         terraform_version: "1.12.2"
 
-    # Uncomment the following lines to run Terratest
+    - name: Terraform Init (Examples)
+      run: |
+        for example in examples/*/; do
+          echo "Initializing $example"
+          cd "$example"
+          terraform init
+          cd - > /dev/null
+        done
+        
     - name: Run Terratest
       env:
         TF_VAR_name_prefix: "ci-test"

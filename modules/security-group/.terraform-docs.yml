@@ -1,0 +1,240 @@
+formatter: "markdown table"
+
+version: ""
+
+header-from: main.tf
+footer-from: ""
+
+sections:
+  hide: []
+  show: []
+
+content: |-
+  # Security Group Module
+
+  This module creates AWS Security Groups with support for both explicit rules and named rule references.
+
+  ## Features
+
+  - Create security groups with custom ingress and egress rules
+  - Support for named rules with predefined port/protocol combinations
+  - Automatic tagging with NetworkTags for subnet classification
+  - Comprehensive set of predefined named rules for common services
+
+  ## Usage
+
+  ### Basic Security Group
+
+  ```hcl
+  module "web_security_group" {
+    source = "./modules/security-group"
+
+    name               = "web-sg"
+    description        = "Security group for web servers"
+    vpc_id             = var.vpc_id
+    vpc_cidr_block     = var.vpc_cidr_block
+    networktags_name   = "NetworkTags"
+    networktags_value  = "web"
+
+    ingress_rules = [
+      {
+        description = "HTTP from anywhere"
+        from_port   = 80
+        to_port     = 80
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+    ]
+
+    egress_rules = [
+      {
+        description = "All outbound traffic"
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+    ]
+  }
+  ```
+
+  ### Using Named Rules
+
+  ```hcl
+  module "database_security_group" {
+    source = "./modules/security-group"
+
+    name               = "db-sg"
+    description        = "Security group for databases"
+    vpc_id             = var.vpc_id
+    vpc_cidr_block     = var.vpc_cidr_block
+    networktags_name   = "NetworkTags"
+    networktags_value  = "database"
+
+    ingress_named_rules = [
+      {
+        named_rule  = "postgres"
+        cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+      },
+      {
+        named_rule  = "redis"
+        cidr_blocks = ["10.0.1.0/24"]
+      }
+    ]
+  }
+  ```
+
+  ### Mixed Rules
+
+  ```hcl
+  module "app_security_group" {
+    source = "./modules/security-group"
+
+    name               = "app-sg"
+    description        = "Security group for application servers"
+    vpc_id             = var.vpc_id
+    vpc_cidr_block     = var.vpc_cidr_block
+    networktags_name   = "NetworkTags"
+    networktags_value  = "private"
+
+    # Explicit rules
+    ingress_rules = [
+      {
+        description = "Custom application port"
+        from_port   = 8000
+        to_port     = 8000
+        protocol    = "tcp"
+        cidr_blocks = ["10.0.0.0/16"]
+      }
+    ]
+
+    # Named rules
+    ingress_named_rules = [
+      {
+        named_rule  = "https"
+        cidr_blocks = ["10.0.0.0/16"]
+      }
+    ]
+
+    egress_named_rules = [
+      {
+        named_rule  = "postgres"
+        cidr_blocks = ["10.0.3.0/24"]
+      },
+      {
+        named_rule  = "https"
+        cidr_blocks = ["0.0.0.0/0"]
+      }
+    ]
+  }
+  ```
+
+  ## Named Rules Reference
+
+  ### Web Services
+  | Rule | Port | Protocol | Description |
+  |------|------|----------|-------------|
+  | `http` | 80 | tcp | HTTP |
+  | `http-8080` | 8080 | tcp | HTTP |
+  | `https` | 443 | tcp | HTTPS |
+  | `https-8443` | 8443 | tcp | HTTPS |
+
+  ### Database Services
+  | Rule | Port | Protocol | Description |
+  |------|------|----------|-------------|
+  | `mysql` | 3306 | tcp | MySQL/Aurora |
+  | `postgres` | 5432 | tcp | PostgreSQL |
+  | `oracle` | 1521 | tcp | Oracle |
+  | `mssql` | 1433 | tcp | Microsoft SQL Server |
+  | `mariadb` | 3306 | tcp | MariaDB |
+  | `db2` | 50000 | tcp | IBM Db2 |
+  | `neptune` | 8182 | tcp | Neptune |
+  | `redshift` | 5439 | tcp | Redshift |
+  | `timestream` | 443 | tcp | Timestream |
+  | `documentdb` | 27017 | tcp | DocumentDB |
+  | `qldb` | 443 | tcp | QLDB |
+  | `dynamodb` | 443 | tcp | DynamoDB |
+
+  ### Cache Services
+  | Rule | Port | Protocol | Description |
+  |------|------|----------|-------------|
+  | `redis` | 6379 | tcp | Redis |
+  | `memcached` | 11211 | tcp | Memcached |
+
+  ### Message Queue Services
+  | Rule | Port | Protocol | Description |
+  |------|------|----------|-------------|
+  | `activemq` | 61617 | tcp | ActiveMQ |
+  | `activemq-web` | 8162 | tcp | ActiveMQ Web Console |
+  | `rabbitmq` | 5672 | tcp | RabbitMQ |
+  | `rabbitmq-web` | 15672 | tcp | RabbitMQ Web Console |
+
+  ### Monitoring & Analytics
+  | Rule | Port | Protocol | Description |
+  |------|------|----------|-------------|
+  | `opensearch` | 443 | tcp | OpenSearch |
+  | `opensearch-dashboards` | 5601 | tcp | OpenSearch Dashboards |
+  | `prometheus` | 9090 | tcp | Prometheus |
+  | `grafana` | 3000 | tcp | Grafana |
+
+  ### Protocol Rules
+  | Rule | Port | Protocol | Description |
+  |------|------|----------|-------------|
+  | `all-all` | 0 | -1 | All protocols |
+  | `all-tcp` | 0-65535 | tcp | All TCP |
+  | `all-udp` | 0-65535 | udp | All UDP |
+  | `all-icmp` | -1 | icmp | All ICMP |
+  | `all-icmpv6` | -1 | icmpv6 | All ICMPv6 |
+
+  ## Requirements
+
+  {{ .Requirements }}
+
+  ## Providers
+
+  {{ .Providers }}
+
+  ## Resources
+
+  {{ .Resources }}
+
+  ## Inputs
+
+  {{ .Inputs }}
+
+  ## Outputs
+
+  {{ .Outputs }}
+
+  ## License
+
+  MIT Licensed. See [LICENSE](../../LICENSE) for full details.
+
+output:
+  file: "README.md"
+  mode: replace
+  template: |-
+    {{ .Content }}
+
+output-values:
+  enabled: false
+  from: ""
+
+sort:
+  enabled: true
+  by: name
+
+settings:
+  anchor: true
+  color: true
+  default: true
+  description: false
+  escape: true
+  hide-empty: false
+  html: true
+  indent: 2
+  lockfile: true
+  read-comments: true
+  required: true
+  sensitive: true
+  type: true
