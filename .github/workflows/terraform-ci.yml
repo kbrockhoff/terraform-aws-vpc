@@ -135,7 +135,15 @@ jobs:
       with:
         terraform_version: "1.12.2"
 
-    # Uncomment the following lines to run Terratest
+    - name: Clean Terraform modules (Examples)
+      run: |
+        for example in examples/*/; do
+          echo "Validating $example"
+          cd "$example"
+          rm -rf .terraform/modules
+          cd - > /dev/null
+        done
+
     - name: Run Terratest
       env:
         TF_VAR_name_prefix: "ci-test"
