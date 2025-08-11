@@ -416,7 +416,9 @@ resource "aws_iam_policy" "iam_kms" {
           "iam:ListAccountAliases",
           "iam:ListAccessKeys"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:${var.partition}:iam::${var.account_id}:*"
+        ]
       },
       {
         Effect = "Allow"
@@ -439,7 +441,10 @@ resource "aws_iam_policy" "iam_kms" {
           "kms:ListAliases",
           "kms:ListKeys"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:${var.partition}:kms:${var.region}:${var.account_id}:key/*",
+          "arn:${var.partition}:kms:${var.region}:${var.account_id}:alias/*",
+        ]
       },
       {
         Effect = "Allow"
