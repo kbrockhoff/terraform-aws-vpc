@@ -8,6 +8,7 @@ locals {
   vpc_flow_logs_kms_key_id = var.vpc_flow_logs_kms_key_id != null ? var.vpc_flow_logs_kms_key_id : (
     local.create_vpc_flow_logs_kms_key ? aws_kms_key.flow_logs[0].arn : null
   )
+  default_log_format = "$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status}"
 }
 
 # KMS Key for CloudWatch Log Group encryption
@@ -159,7 +160,7 @@ resource "aws_flow_log" "vpc" {
   traffic_type    = var.vpc_flow_logs_traffic_type
   vpc_id          = aws_vpc.main[0].id
 
-  log_format = var.vpc_flow_logs_custom_format != null ? var.vpc_flow_logs_custom_format : "$${version} $${account-id} $${interface-id} $${srcaddr} $${dstaddr} $${srcport} $${dstport} $${protocol} $${packets} $${bytes} $${start} $${end} $${action} $${log-status}"
+  log_format = var.vpc_flow_logs_custom_format != null ? var.vpc_flow_logs_custom_format : local.default_log_format
 
   tags = merge(
     local.common_tags,

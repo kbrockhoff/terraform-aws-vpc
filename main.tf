@@ -86,7 +86,7 @@ resource "aws_internet_gateway" "main" {
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.name_prefix}-igw"
+      Name = "${var.name_prefix}-igw"
     }
   )
 
@@ -105,7 +105,7 @@ resource "aws_egress_only_internet_gateway" "main" {
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.name_prefix}-eigw"
+      Name = "${var.name_prefix}-eigw"
     }
   )
 }
@@ -127,7 +127,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-public-${local.azs[count.index]}"
+      Name                      = "${var.name_prefix}-public-${local.azs[count.index]}"
       "${var.networktags_name}" = "public"
     }
   )
@@ -149,7 +149,7 @@ resource "aws_subnet" "private" {
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-private-${local.azs[count.index]}"
+      Name                      = "${var.name_prefix}-private-${local.azs[count.index]}"
       "${var.networktags_name}" = "private"
     }
   )
@@ -171,7 +171,7 @@ resource "aws_subnet" "database" {
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-database-${local.azs[count.index]}"
+      Name                      = "${var.name_prefix}-database-${local.azs[count.index]}"
       "${var.networktags_name}" = "database"
     }
   )
@@ -184,13 +184,13 @@ resource "aws_subnet" "database" {
 resource "aws_db_subnet_group" "database" {
   count = var.enabled && length(local.database_subnet_cidrs) > 0 ? 1 : 0
 
-  name       = "${local.name_prefix}-database"
+  name       = "${var.name_prefix}-database"
   subnet_ids = aws_subnet.database[*].id
 
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-standard"
+      Name                      = "${var.name_prefix}-standard"
       "${var.networktags_name}" = "standard"
     }
   )
@@ -199,13 +199,13 @@ resource "aws_db_subnet_group" "database" {
 resource "aws_elasticache_subnet_group" "cache" {
   count = var.enabled && length(var.enabled_caches) > 0 && length(local.database_subnet_cidrs) > 0 ? 1 : 0
 
-  name       = "${local.name_prefix}-cache"
+  name       = "${var.name_prefix}-cache"
   subnet_ids = aws_subnet.database[*].id
 
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-standard"
+      Name                      = "${var.name_prefix}-standard"
       "${var.networktags_name}" = "standard"
     }
   )
@@ -227,7 +227,7 @@ resource "aws_subnet" "nonroutable" {
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-nonroutable-${local.azs[count.index]}"
+      Name                      = "${var.name_prefix}-nonroutable-${local.azs[count.index]}"
       "${var.networktags_name}" = "nonroutable"
     }
   )
@@ -247,7 +247,7 @@ resource "aws_eip" "nat" {
   tags = merge(
     local.common_tags,
     {
-      Name = local.nat_gateway_count == 1 ? "${local.name_prefix}-nat-eip" : "${local.name_prefix}-nat-eip-${local.azs[count.index]}"
+      Name = local.nat_gateway_count == 1 ? "${var.name_prefix}-nat-eip" : "${var.name_prefix}-nat-eip-${local.azs[count.index]}"
     }
   )
 
@@ -267,7 +267,7 @@ resource "aws_nat_gateway" "main" {
   tags = merge(
     local.common_tags,
     {
-      Name = local.nat_gateway_count == 1 ? "${local.name_prefix}-nat" : "${local.name_prefix}-nat-${local.azs[count.index]}"
+      Name = local.nat_gateway_count == 1 ? "${var.name_prefix}-nat" : "${var.name_prefix}-nat-${local.azs[count.index]}"
     }
   )
 
@@ -286,7 +286,7 @@ resource "aws_route_table" "public" {
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.name_prefix}-public"
+      Name = "${var.name_prefix}-public"
     }
   )
 }
@@ -334,7 +334,7 @@ resource "aws_route_table" "private" {
   tags = merge(
     local.common_tags,
     {
-      Name = local.nat_gateway_count == 1 ? "${local.name_prefix}-private" : "${local.name_prefix}-private-${local.azs[count.index]}"
+      Name = local.nat_gateway_count == 1 ? "${var.name_prefix}-private" : "${var.name_prefix}-private-${local.azs[count.index]}"
     }
   )
 }
@@ -389,7 +389,7 @@ resource "aws_route_table" "database" {
   tags = merge(
     local.common_tags,
     {
-      Name = local.nat_gateway_count == 1 ? "${local.name_prefix}-database" : "${local.name_prefix}-database-${local.azs[count.index]}"
+      Name = local.nat_gateway_count == 1 ? "${var.name_prefix}-database" : "${var.name_prefix}-database-${local.azs[count.index]}"
     }
   )
 }
@@ -416,7 +416,7 @@ resource "aws_default_route_table" "default" {
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.name_prefix}-default-rt"
+      Name = "${var.name_prefix}-default-rt"
     }
   )
 }
@@ -463,7 +463,7 @@ resource "aws_default_network_acl" "default" {
   tags = merge(
     local.common_tags,
     {
-      Name = "${local.name_prefix}-default-nacl"
+      Name = "${var.name_prefix}-default-nacl"
     }
   )
 
@@ -484,7 +484,7 @@ resource "aws_default_security_group" "default" {
   tags = merge(
     local.common_tags,
     {
-      Name                      = "${local.name_prefix}-default-sg"
+      Name                      = "${var.name_prefix}-default-sg"
       "${var.networktags_name}" = "default"
     }
   )

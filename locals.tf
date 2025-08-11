@@ -126,8 +126,6 @@ locals {
   # Data tags take precedence over common tags
   common_data_tags = merge(local.common_tags, var.data_tags)
 
-  name_prefix = var.name_prefix
-
   # Get availability zones from data source
   availability_zones = data.aws_availability_zones.available.names
 
@@ -169,7 +167,8 @@ locals {
   # WARNING: CORE ALGORITHM - MODIFICATIONS REQUIRE ARCHITECTURE REVIEW
   # This section performs complex calculations for subnet CIDRs that optimize IP
   # space usage while maintaining AWS subnet requirements (minimum /28).
-  # Changes here have previously caused incorrect CIDR block allocations.
+  # Changes here have previously caused incorrect CIDR block allocations
+  # because of incorrect calculations on intended unequal subnet sizes.
   ################################################################################
 
   # Calculate new_bits to fit all required subnets

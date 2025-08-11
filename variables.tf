@@ -25,7 +25,7 @@ variable "tags" {
 }
 
 variable "data_tags" {
-  description = "Additional tags to apply specifically to data storage resources (e.g., S3, RDS, EBS) beyond the common tags."
+  description = "Additional tags to apply specifically to data storage resources (e.g., VPC Flow Logs, S3) beyond the common tags."
   type        = map(string)
   default     = {}
 }
