@@ -118,7 +118,9 @@ resource "aws_iam_policy" "ec2_describe" {
           "ec2:DescribeVpcEndpoints",
           "ec2:DescribeFlowLogs"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:${var.partition}:ec2:${var.region}:${var.account_id}:*",
+        ]
       }
     ]
   })
@@ -297,7 +299,9 @@ resource "aws_iam_policy" "vpc_networking" {
         Action = [
           "ec2:CreateTags"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:${var.partition}:ec2:${var.region}:${var.account_id}:*",
+        ]
         Condition = {
           StringEquals = {
             "ec2:CreateAction" = [
@@ -379,24 +383,14 @@ resource "aws_iam_policy" "aws_services" {
       {
         Effect = "Allow"
         Action = [
-          "elasticache:CreateCacheSubnetGroup",
-          "elasticache:DeleteCacheSubnetGroup",
-          "elasticache:ListTagsForResource",
-          "elasticache:DescribeCacheSubnetGroups"
-        ]
-        Resource = [
-          "arn:${var.partition}:elasticache:${var.region}:${var.account_id}:subnetgroup:${var.name_prefix}-*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
           "freetier:GetAccountPlanState",
           "pricing:GetAttributeValues",
           "pricing:GetProducts",
           "sts:GetCallerIdentity"
         ]
-        Resource = "*"
+        Resource = [
+          "arn:${var.partition}:*:${var.region}:${var.account_id}:*",
+        ]
       }
     ]
   })
@@ -493,43 +487,12 @@ resource "aws_iam_policy" "iam_kms" {
         Resource = [
           "arn:${var.partition}:kms:${var.region}:${var.account_id}:alias/${var.name_prefix}-*"
         ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:PutRetentionPolicy",
-          "logs:DeleteLogGroup",
-          "logs:CreateLogGroup",
-          "logs:DescribeLogGroups",
-          "logs:ListTagsForResource",
-          "logs:TagResource",
-          "logs:UntagResource",
-          "logs:TagLogGroup",
-          "logs:UntagLogGroup"
-        ]
-        Resource = [
-          "arn:${var.partition}:logs:${var.region}:${var.account_id}:log-group:${var.name_prefix}-*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "rds:DescribeDBSubnetGroups",
-          "rds:DeleteDBSubnetGroup",
-          "rds:CreateDBSubnetGroup",
-          "rds:ListTagsForResource",
-          "rds:AddTagsToResource",
-          "rds:RemoveTagsFromResource"
-        ]
-        Resource = [
-          "arn:${var.partition}:rds:${var.region}:${var.account_id}:subgrp:${var.name_prefix}-*"
-        ]
-      },
+      }
     ]
   })
 
   tags = merge(var.tags, {
-    Name = "${var.name_prefix}-vpc-management-policy"
+    Name = "${var.name_prefix}-iam-kms-policy"
   })
 }
 
