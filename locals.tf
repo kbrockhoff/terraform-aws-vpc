@@ -172,10 +172,6 @@ locals {
   # Changes here have previously caused incorrect CIDR block allocations.
   ################################################################################
 
-  # Calculate subnet sizing based on VPC CIDR and required subnet count
-  # Total subnets needed: public count + private count + database count
-  total_subnets_needed = local.public_subnet_count + local.private_subnet_count + local.database_subnet_count
-
   # Calculate new_bits to fit all required subnets
   # Public subnets need at least /28 (16 IPs, 11 usable after AWS reserves 5)
   # Database subnets need at least /28 (16 IPs, 11 usable after AWS reserves 5)

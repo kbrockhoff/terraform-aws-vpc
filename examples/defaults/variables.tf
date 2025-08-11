@@ -32,12 +32,6 @@ variable "environment_type" {
   }
 }
 
-variable "enabled" {
-  description = "Set to false to prevent the module from creating any resources"
-  type        = bool
-  default     = true
-}
-
 variable "tags" {
   description = "Tags/labels to apply to all resources."
   type        = map(string)
