@@ -216,6 +216,7 @@ This eliminates the need to manage different subnet IDs variable values for each
 | <a name="input_ipv6_netmask_length"></a> [ipv6\_netmask\_length](#input\_ipv6\_netmask\_length) | The netmask length of the IPv6 CIDR you want to allocate to this VPC | `number` | `56` | no |
 | <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Should be true if you want to provision NAT Gateways for each of your private networks | `bool` | `true` | no |
 | <a name="input_networktags_name"></a> [networktags\_name](#input\_networktags\_name) | Name of the network tags key used for subnet classification | `string` | `"NetworkTags"` | no |
+| <a name="input_networktags_value_vpc"></a> [networktags\_value\_vpc](#input\_networktags\_value\_vpc) | Value to assign to the network tags key for the VPC and only the VPC. Use the default unless you have a specific reason to change it. | `string` | `"standard"` | no |
 | <a name="input_nonroutable_subnets_enabled"></a> [nonroutable\_subnets\_enabled](#input\_nonroutable\_subnets\_enabled) | Enable creation of non-routable subnets for EKS pods | `bool` | `true` | no |
 | <a name="input_resilient_natgateway_enabled"></a> [resilient\_natgateway\_enabled](#input\_resilient\_natgateway\_enabled) | Enable resilient NAT Gateway deployment (one per public subnet for high availability). If false, provisions a single NAT Gateway. | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags/labels to apply to all resources | `map(string)` | `{}` | no |
