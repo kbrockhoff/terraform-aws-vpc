@@ -49,6 +49,11 @@ data "aws_pricing_product" "vpc_endpoint" {
   }
 
   filters {
+    field = "location"
+    value = local.pricing_location
+  }
+
+  filters {
     field = "usagetype"
     value = "${local.usagetype_region}-VpcEndpoint-Hours"
   }

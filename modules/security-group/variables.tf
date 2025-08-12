@@ -24,10 +24,6 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "vpc_cidr_block" {
-  description = "CIDR block of the VPC"
-  type        = string
-}
 
 variable "tags" {
   description = "Tags/labels to apply to all resources"
