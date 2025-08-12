@@ -40,6 +40,7 @@ terraform.rc
 # IDEs
 .idea/
 .vscode/
+test/terraform-aws-vpc.test
 *.sublime-project
 *.sublime-workspace
 

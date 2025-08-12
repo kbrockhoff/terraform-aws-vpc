@@ -35,13 +35,13 @@ func TestTerraformDefaultsExample(t *testing.T) {
 
 	// Verify the plan completed without errors and shows expected resource creation
 	assert.NotEmpty(t, planOutput)
-	
+
 	// Verify core VPC resources are planned for creation
 	assert.Contains(t, planOutput, "aws_vpc.main")
 	assert.Contains(t, planOutput, "aws_subnet.public")
 	assert.Contains(t, planOutput, "aws_subnet.private")
 	assert.Contains(t, planOutput, "will be created")
-	
+
 	// Verify expected resource count (should have VPC and related resources)
 	assert.Contains(t, planOutput, "40 to add, 0 to change, 0 to destroy")
 
