@@ -60,6 +60,7 @@ func TestTerraformPrivateExample(t *testing.T) {
 	assert.Contains(t, planOutput, "module.main.module.vpc_security_group")
 	assert.Contains(t, planOutput, "module.main.module.endpoint_security_group")
 
-	// Verify expected resource count - should have private resources only
-	assert.Contains(t, planOutput, "to add, 0 to change, 0 to destroy")
+	// Verify expected resource count (should have VPC and related resources)
+	assert.Contains(t, planOutput, "44 to add, 0 to change, 0 to destroy")
+
 }

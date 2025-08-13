@@ -99,4 +99,8 @@ func TestTerraformIPAMIPv4IPv6Example(t *testing.T) {
 	assert.Contains(t, planOutput, "aws_subnet.public")
 	assert.Contains(t, planOutput, "aws_subnet.private")
 	assert.Contains(t, planOutput, "will be created")
+
+	// Verify expected resource count (should have VPC and related resources)
+	assert.Contains(t, planOutput, "43 to add, 0 to change, 0 to destroy")
+
 }

@@ -21,20 +21,83 @@ into the VPC across multiple environments without having to specify VPC, subnet,
 ### Basic Example
 
 ```hcl
-module "example" {
-  source = "path/to/terraform-module"
+# Main AWS provider - uses the current region
+provider "aws" {
+  # This is the default provider used for VPC resources
+}
 
-  # ... other required arguments ...
+# Pricing provider - always uses us-east-1 where the AWS Pricing API is available
+provider "aws" {
+  alias  = "pricing"
+  region = "us-east-1"
+}
+
+module "vpc" {
+  source = "kbrockhoff/vpc/aws"
+
+  providers = {
+    aws         = aws
+    aws.pricing = aws.pricing
+  }
+
+  name_prefix      = "vpc-example"
+  cidr_primary     = "172.20.0.0/24"
+  environment_type = "Development"
+  
+  tags = {
+    Environment = "dev"
+    Project     = "vpc-example"
+  }
 }
 ```
 
 ### Complete Example
 
 ```hcl
-module "example" {
-  source = "path/to/terraform-module"
+# Main AWS provider - uses the current region
+provider "aws" {
+  # This is the default provider used for VPC resources
+}
 
-  # ... all available arguments ...
+# Pricing provider - always uses us-east-1 where the AWS Pricing API is available
+provider "aws" {
+  alias  = "pricing"
+  region = "us-east-1"
+}
+
+module "vpc" {
+  source = "kbrockhoff/vpc/aws"
+
+  providers = {
+    aws         = aws
+    aws.pricing = aws.pricing
+  }
+
+  name_prefix      = "complete-example"
+  cidr_primary     = "10.28.0.0/20"
+  environment_type = "Production"
+  
+  # Specify which AZs to use (optional)
+  allowed_availability_zone_ids = ["us-east-1c", "us-east-1d", "us-east-1f"]
+  
+  # Enable database subnet route table
+  create_database_route_table = true
+  
+  # Enable cost estimation
+  cost_estimation_config = {
+    enabled                   = true
+    data_transfer_mb_per_hour = 10
+  }
+  
+  # VPC Endpoints
+  gateway_endpoints   = ["s3", "dynamodb"]
+  interface_endpoints = ["kms", "ec2", "ec2messages", "ssmmessages", "ssm", "logs"]
+  
+  tags = {
+    Environment = "production"
+    Project     = "complete-vpc-example"
+    Owner       = "devops-team"
+  }
 }
 ```
 

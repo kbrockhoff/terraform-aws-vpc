@@ -5,13 +5,13 @@ environment_type = "Development"
 # IPAM Configuration - replace with your actual IPAM pool ID
 # You can find IPAM pool IDs in the VPC console under IPAM -> Pools
 ipam_pool_enabled   = true
-ipv4_ipam_pool_id   = "ipam-pool-xxxxxxxxxxxxxxxxx"
+ipv4_ipam_pool_id   = "ipam-pool-xxxxxxxxxxxxxxxxx" # replace with real pool ID
 ipv4_netmask_length = 20
 
 # Optional: Enable IPv6 with IPAM
 ipv6_enabled           = true
 ipv6_ipam_pool_enabled = true
-ipv6_ipam_pool_id      = "ipam-pool-xxxxxxxxxxxxxxxxx"
+ipv6_ipam_pool_id      = "ipam-pool-xxxxxxxxxxxxxxxxx" # replace with real pool ID
 ipv6_netmask_length    = 56
 
 # VPC Configuration

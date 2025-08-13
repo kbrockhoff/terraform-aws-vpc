@@ -34,7 +34,7 @@ Update the following variables in `terraform.auto.tfvars`:
 
 ```hcl
 # Replace with your actual IPAM pool ID
-ipv4_ipam_pool_id = "ipam-pool-xxxxxxxxxxxxxxxxx"
+ipv4_ipam_pool_id = "ipam-pool-xxxxxxxxxxxxxxxxx"  # replace with real pool ID
 
 # Adjust netmask length based on your needs
 ipv4_netmask_length = 20  # Results in /20 network (4096 addresses)
@@ -47,7 +47,7 @@ This example now enables IPv6 with IPAM by default. The configuration includes:
 ```hcl
 ipv6_enabled           = true
 ipv6_ipam_pool_enabled = true
-ipv6_ipam_pool_id      = "ipam-pool-xxxxxxxxxxxxxxxxx"  # Replace with your IPv6 IPAM pool ID
+ipv6_ipam_pool_id      = "ipam-pool-xxxxxxxxxxxxxxxxx"  # replace with real pool ID
 ipv6_netmask_length    = 56
 ```
 
@@ -62,7 +62,7 @@ To find your IPv6 IPAM pool ID:
 1. Go to the AWS VPC Console
 2. Navigate to **IPAM** → **Pools**
 3. Find your IPv4 pool and copy the Pool ID
-4. The ID format is: `ipam-pool-xxxxxxxxxxxxxxxxx`
+4. The ID format is: `ipam-pool-xxxxxxxxxxxxxxxxx`  # replace with real pool ID
 
 ## Usage
 
