@@ -7,15 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const RandomIDLength = 10
-
-func TestTerraformDefaultsExample(t *testing.T) {
+func TestTerraformPrivateExample(t *testing.T) {
 	t.Parallel()
-	expectedName := generateTestNamePrefix("def")
+	expectedName := generateTestNamePrefix("priv")
 
 	terraformOptions := &terraform.Options{
 		// The path to where our Terraform code is located
-		TerraformDir: "../examples/defaults",
+		TerraformDir: "../examples/private",
 
 		// Variables to pass to our Terraform code using -var options
 		Vars: map[string]interface{}{
@@ -38,11 +36,31 @@ func TestTerraformDefaultsExample(t *testing.T) {
 
 	// Verify core VPC resources are planned for creation
 	assert.Contains(t, planOutput, "aws_vpc.main")
-	assert.Contains(t, planOutput, "aws_subnet.public")
 	assert.Contains(t, planOutput, "aws_subnet.private")
+	assert.Contains(t, planOutput, "aws_subnet.database")
 	assert.Contains(t, planOutput, "will be created")
 
+	// Verify private-only configuration - should NOT have public resources
+	assert.NotContains(t, planOutput, "aws_internet_gateway.main")
+	assert.NotContains(t, planOutput, "aws_nat_gateway.main")
+	assert.NotContains(t, planOutput, "aws_subnet.public")
+
+	// Verify VPC block public access is enabled
+	assert.Contains(t, planOutput, "aws_vpc_block_public_access_options.main")
+
+	// Verify VPC endpoints are created for private connectivity
+	assert.Contains(t, planOutput, "module.main.module.vpc_endpoints")
+
+	// Verify VPC Flow Logs are enabled
+	assert.Contains(t, planOutput, "aws_flow_log.vpc")
+	assert.Contains(t, planOutput, "aws_cloudwatch_log_group.vpc_flow_logs")
+
+	// Verify security groups for private networking
+	assert.Contains(t, planOutput, "module.main.module.db_security_group")
+	assert.Contains(t, planOutput, "module.main.module.vpc_security_group")
+	assert.Contains(t, planOutput, "module.main.module.endpoint_security_group")
+
 	// Verify expected resource count (should have VPC and related resources)
-	assert.Contains(t, planOutput, "40 to add, 0 to change, 0 to destroy")
+	assert.Contains(t, planOutput, "44 to add, 0 to change, 0 to destroy")
 
 }

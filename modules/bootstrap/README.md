@@ -45,8 +45,6 @@ No modules.
 | <a name="input_github_repo"></a> [github\_repo](#input\_github\_repo) | GitHub repository name | `string` | n/a | yes |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Organization unique prefix to use for resource names. Recommend including environment and region. e.g. 'prod-usw2'. | `string` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | AWS region | `string` | n/a | yes |
-| <a name="input_s3_backend_bucket"></a> [s3\_backend\_bucket](#input\_s3\_backend\_bucket) | S3 bucket name for Terraform state backend | `string` | n/a | yes |
-| <a name="input_s3_backend_lock_table"></a> [s3\_backend\_lock\_table](#input\_s3\_backend\_lock\_table) | DynamoDB table name for Terraform state locking | `string` | n/a | yes |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources. | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name for OIDC trust (e.g., 'development', 'staging', 'production') | `string` | `"*"` | no |
 | <a name="input_partition"></a> [partition](#input\_partition) | AWS partition | `string` | `"aws"` | no |

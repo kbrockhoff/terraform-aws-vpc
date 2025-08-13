@@ -54,6 +54,12 @@ variable "networktags_name" {
   }
 }
 
+variable "networktags_value_vpc" {
+  description = "Value to assign to the network tags key for the VPC and only the VPC. Use the default unless you have a specific reason to change it."
+  type        = string
+  default     = "standard"
+}
+
 # ----
 # VPC
 # ----

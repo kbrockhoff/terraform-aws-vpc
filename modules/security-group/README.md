@@ -216,7 +216,6 @@ module "app_security_group" {
 | <a name="input_networktags_name"></a> [networktags\_name](#input\_networktags\_name) | Name of the network tags key used for security group classification | `string` | `"NetworkTags"` | no |
 | <a name="input_networktags_value"></a> [networktags\_value](#input\_networktags\_value) | Value for the network tags key | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags/labels to apply to all resources | `map(string)` | `{}` | no |
-| <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | CIDR block of the VPC | `string` | n/a | yes |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | ID of the VPC where security group will be created | `string` | n/a | yes |
 
 ## Outputs

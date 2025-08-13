@@ -44,7 +44,7 @@ resource "aws_vpc" "main" {
     local.common_tags,
     {
       Name                      = "${var.name_prefix}-vpc"
-      "${var.networktags_name}" = "standard"
+      "${var.networktags_name}" = var.networktags_value_vpc
     }
   )
 }
@@ -498,7 +498,6 @@ module "lb_security_group" {
   name              = "${var.name_prefix}-lb-sg"
   description       = "Load balancer security group with VPC access and HTTPS ingress"
   vpc_id            = var.enabled ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "public"
 
@@ -543,7 +542,6 @@ module "db_security_group" {
   name              = "${var.name_prefix}-db-sg"
   description       = "Database security group with VPC non-public DB ingress"
   vpc_id            = var.enabled ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "database"
 
@@ -569,7 +567,6 @@ module "cache_security_group" {
   name              = "${var.name_prefix}-cache-sg"
   description       = "Cache security group with VPC non-public cache ingress"
   vpc_id            = var.enabled ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "cache"
 
@@ -595,7 +592,6 @@ module "vpc_security_group" {
   name              = "${var.name_prefix}-vpc-sg"
   description       = "VPC-only security group with VPC traffic only"
   vpc_id            = var.enabled ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "vpconly"
 
@@ -644,7 +640,6 @@ module "endpoint_security_group" {
   name              = "${var.name_prefix}-endpoint-sg"
   description       = "Endpoint security group with VPC non-public HTTPS ingress"
   vpc_id            = var.enabled ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "endpoint"
 
@@ -670,7 +665,6 @@ module "app_security_group" {
   name              = "${var.name_prefix}-app-sg"
   description       = "Application security group with VPC access and HTTPS egress"
   vpc_id            = var.enabled ? aws_vpc.main[0].id : null
-  vpc_cidr_block    = var.enabled ? aws_vpc.main[0].cidr_block : null
   networktags_name  = var.networktags_name
   networktags_value = "private"
 

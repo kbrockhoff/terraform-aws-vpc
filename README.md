@@ -21,20 +21,83 @@ into the VPC across multiple environments without having to specify VPC, subnet,
 ### Basic Example
 
 ```hcl
-module "example" {
-  source = "path/to/terraform-module"
+# Main AWS provider - uses the current region
+provider "aws" {
+  # This is the default provider used for VPC resources
+}
 
-  # ... other required arguments ...
+# Pricing provider - always uses us-east-1 where the AWS Pricing API is available
+provider "aws" {
+  alias  = "pricing"
+  region = "us-east-1"
+}
+
+module "vpc" {
+  source = "kbrockhoff/vpc/aws"
+
+  providers = {
+    aws         = aws
+    aws.pricing = aws.pricing
+  }
+
+  name_prefix      = "vpc-example"
+  cidr_primary     = "172.20.0.0/24"
+  environment_type = "Development"
+  
+  tags = {
+    Environment = "dev"
+    Project     = "vpc-example"
+  }
 }
 ```
 
 ### Complete Example
 
 ```hcl
-module "example" {
-  source = "path/to/terraform-module"
+# Main AWS provider - uses the current region
+provider "aws" {
+  # This is the default provider used for VPC resources
+}
 
-  # ... all available arguments ...
+# Pricing provider - always uses us-east-1 where the AWS Pricing API is available
+provider "aws" {
+  alias  = "pricing"
+  region = "us-east-1"
+}
+
+module "vpc" {
+  source = "kbrockhoff/vpc/aws"
+
+  providers = {
+    aws         = aws
+    aws.pricing = aws.pricing
+  }
+
+  name_prefix      = "complete-example"
+  cidr_primary     = "10.28.0.0/20"
+  environment_type = "Production"
+  
+  # Specify which AZs to use (optional)
+  allowed_availability_zone_ids = ["us-east-1c", "us-east-1d", "us-east-1f"]
+  
+  # Enable database subnet route table
+  create_database_route_table = true
+  
+  # Enable cost estimation
+  cost_estimation_config = {
+    enabled                   = true
+    data_transfer_mb_per_hour = 10
+  }
+  
+  # VPC Endpoints
+  gateway_endpoints   = ["s3", "dynamodb"]
+  interface_endpoints = ["kms", "ec2", "ec2messages", "ssmmessages", "ssm", "logs"]
+  
+  tags = {
+    Environment = "production"
+    Project     = "complete-vpc-example"
+    Owner       = "devops-team"
+  }
 }
 ```
 
@@ -216,6 +279,7 @@ This eliminates the need to manage different subnet IDs variable values for each
 | <a name="input_ipv6_netmask_length"></a> [ipv6\_netmask\_length](#input\_ipv6\_netmask\_length) | The netmask length of the IPv6 CIDR you want to allocate to this VPC | `number` | `56` | no |
 | <a name="input_nat_gateway_enabled"></a> [nat\_gateway\_enabled](#input\_nat\_gateway\_enabled) | Should be true if you want to provision NAT Gateways for each of your private networks | `bool` | `true` | no |
 | <a name="input_networktags_name"></a> [networktags\_name](#input\_networktags\_name) | Name of the network tags key used for subnet classification | `string` | `"NetworkTags"` | no |
+| <a name="input_networktags_value_vpc"></a> [networktags\_value\_vpc](#input\_networktags\_value\_vpc) | Value to assign to the network tags key for the VPC and only the VPC. Use the default unless you have a specific reason to change it. | `string` | `"standard"` | no |
 | <a name="input_nonroutable_subnets_enabled"></a> [nonroutable\_subnets\_enabled](#input\_nonroutable\_subnets\_enabled) | Enable creation of non-routable subnets for EKS pods | `bool` | `true` | no |
 | <a name="input_resilient_natgateway_enabled"></a> [resilient\_natgateway\_enabled](#input\_resilient\_natgateway\_enabled) | Enable resilient NAT Gateway deployment (one per public subnet for high availability). If false, provisions a single NAT Gateway. | `bool` | `false` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags/labels to apply to all resources | `map(string)` | `{}` | no |
