@@ -170,6 +170,34 @@ module "custom_resources" {
 Resources deployed to subnets use lookup by `NetworkTags` values to determine which subnets to deploy to. 
 This eliminates the need to manage different subnet IDs variable values for each environment.
 
+## CI/CD Permissions
+
+The [modules/deployer](modules/deployer) submodule creates the least privilege IAM policies a
+CI/CD pipeline needs to plan, apply and destroy this module. Attach them to the role created by
+[terraform-aws-cicdrole](https://github.com/kbrockhoff/terraform-aws-cicdrole), which owns the
+OIDC trust and Terraform state access. Apply both from a privileged platform configuration.
+
+```hcl
+module "cicd_role" {
+  source = "github.com/kbrockhoff/terraform-aws-cicdrole"
+
+  name_prefix   = "prod-usw2"
+  cicd_provider = "github-actions"
+  git_repos     = ["my-infra-repo"]
+  # ...
+}
+
+module "vpc_deployer" {
+  source = "github.com/kbrockhoff/terraform-aws-vpc//modules/deployer"
+
+  name_prefix   = "prod-usw2" # same prefix the pipeline uses for this module
+  iam_role_name = module.cicd_role.role_name
+  partition     = data.aws_partition.current.partition
+  region        = data.aws_region.current.region
+  account_id    = data.aws_caller_identity.current.account_id
+}
+```
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

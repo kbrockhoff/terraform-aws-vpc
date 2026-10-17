@@ -5,7 +5,7 @@ variable "enabled" {
 }
 
 variable "name_prefix" {
-  description = "Organization unique prefix to use for resource names. Recommend including environment and region. e.g. 'prod-usw2'."
+  description = "Organization unique prefix to use for resource names. Must match the name_prefix used when deploying the parent module. e.g. 'prod-usw2'."
   type        = string
 
   validation {
@@ -14,20 +14,10 @@ variable "name_prefix" {
   }
 }
 
-variable "github_org" {
-  description = "GitHub organization name"
+variable "iam_role_name" {
+  description = "Name of an existing IAM role to attach the policies to, typically the role_name output of terraform-aws-cicdrole. Leave empty to only create the policies."
   type        = string
-}
-
-variable "github_repo" {
-  description = "GitHub repository name"
-  type        = string
-}
-
-variable "environment" {
-  description = "Environment name for OIDC trust (e.g., 'development', 'staging', 'production')"
-  type        = string
-  default     = "*"
+  default     = ""
 }
 
 variable "tags" {
@@ -43,12 +33,16 @@ variable "partition" {
 }
 
 variable "region" {
-  description = "AWS region"
+  description = "AWS region where the parent module is deployed"
   type        = string
 }
 
 variable "account_id" {
-  description = "AWS account ID"
+  description = "AWS account ID where the parent module is deployed"
   type        = string
-}
 
+  validation {
+    condition     = can(regex("^[0-9]{12}$", var.account_id))
+    error_message = "The account_id value must be a 12 digit AWS account ID."
+  }
+}
