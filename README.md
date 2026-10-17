@@ -202,26 +202,26 @@ module "vpc_deployer" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.8.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
 
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_app_security_group"></a> [app\_security\_group](#module\_app\_security\_group) | ./modules/security-group | n/a |
 | <a name="module_cache_security_group"></a> [cache\_security\_group](#module\_cache\_security\_group) | ./modules/security-group | n/a |
 | <a name="module_db_security_group"></a> [db\_security\_group](#module\_db\_security\_group) | ./modules/security-group | n/a |
 | <a name="module_endpoint_security_group"></a> [endpoint\_security\_group](#module\_endpoint\_security\_group) | ./modules/security-group | n/a |
 | <a name="module_lb_security_group"></a> [lb\_security\_group](#module\_lb\_security\_group) | ./modules/security-group | n/a |
-| <a name="module_pricing"></a> [pricing](#module\_pricing) | ./modules/pricing | n/a |
+| <a name="module_pricing"></a> [pricing](#module\_pricing) | ./modules/cost-estimation | n/a |
 | <a name="module_subnets"></a> [subnets](#module\_subnets) | hashicorp/subnets/cidr | 1.0.0 |
 | <a name="module_vpc_endpoints"></a> [vpc\_endpoints](#module\_vpc\_endpoints) | ./modules/vpc-endpoints | n/a |
 | <a name="module_vpc_security_group"></a> [vpc\_security\_group](#module\_vpc\_security\_group) | ./modules/security-group | n/a |
@@ -229,7 +229,7 @@ module "vpc_deployer" {
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_cloudwatch_log_group.vpc_flow_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_db_subnet_group.database](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/db_subnet_group) | resource |
 | [aws_default_network_acl.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/default_network_acl) | resource |
@@ -270,13 +270,13 @@ module "vpc_deployer" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Organization unique prefix to use for resource names. Recommend including environment and region. e.g. 'prod-usw2' | `string` | n/a | yes |
 | <a name="input_allowed_availability_zone_ids"></a> [allowed\_availability\_zone\_ids](#input\_allowed\_availability\_zone\_ids) | List of allowed availability zone IDs. If empty, randomly select from all available AZs in the region.<br/><br/>Specify allowed AZs when you need to:<br/>- Support private endpoints to endpoint services in other AWS accounts (requires matching AZs)<br/>- Avoid cross-AZ data transfer charges by ensuring resources are co-located<br/>- Meet compliance requirements for data locality within specific AZs<br/>- Maintain consistency with existing infrastructure deployments<br/><br/>Use AZ IDs (e.g., use1-az1, use1-az2) rather than AZ names (e.g., us-east-1a, us-east-1b) <br/>to ensure consistent mapping across AWS accounts. | `list(string)` | `[]` | no |
 | <a name="input_availability_zone_count"></a> [availability\_zone\_count](#input\_availability\_zone\_count) | Number of availability zones to use for private subnets | `number` | `2` | no |
 | <a name="input_block_public_access_enabled"></a> [block\_public\_access\_enabled](#input\_block\_public\_access\_enabled) | Enable VPC block public access to prevent creation of public subnets and block bidirectional internet access | `bool` | `false` | no |
 | <a name="input_cidr_primary"></a> [cidr\_primary](#input\_cidr\_primary) | The IPv4 CIDR block for the VPC | `string` | `"10.0.0.0/24"` | no |
-| <a name="input_cost_estimation_config"></a> [cost\_estimation\_config](#input\_cost\_estimation\_config) | Configuration object for monthly cost estimation | <pre>object({<br/>    enabled                   = bool<br/>    data_transfer_mb_per_hour = number<br/>  })</pre> | <pre>{<br/>  "data_transfer_mb_per_hour": 10,<br/>  "enabled": true<br/>}</pre> | no |
+| <a name="input_cost_estimation_config"></a> [cost\_estimation\_config](#input\_cost\_estimation\_config) | Configuration object for monthly cost estimation:<br/>- enabled: set to false to skip the Pricing API lookups<br/>- data\_transfer\_mb\_per\_hour: assumed MB per hour processed by NAT gateways and interface endpoints combined (overridden by environment\_type defaults)<br/>- flow\_logs\_gb\_per\_month: assumed GB of VPC flow logs delivered to CloudWatch Logs per month<br/>- vpc\_endpoint\_traffic\_percent: share of that traffic sent through interface endpoints when NAT gateways also exist; the rest goes through NAT | <pre>object({<br/>    enabled                      = optional(bool, true)<br/>    data_transfer_mb_per_hour    = optional(number, 10)<br/>    flow_logs_gb_per_month       = optional(number, 1)<br/>    vpc_endpoint_traffic_percent = optional(number, 50)<br/>  })</pre> | `{}` | no |
 | <a name="input_create_database_route_table"></a> [create\_database\_route\_table](#input\_create\_database\_route\_table) | Controls if separate route table for database should be created | `bool` | `false` | no |
 | <a name="input_create_vpc_flow_logs_kms_key"></a> [create\_vpc\_flow\_logs\_kms\_key](#input\_create\_vpc\_flow\_logs\_kms\_key) | Set to true to create a customer-managed KMS key for encrypting VPC Flow Logs | `bool` | `true` | no |
 | <a name="input_data_tags"></a> [data\_tags](#input\_data\_tags) | Additional tags to apply specifically to data storage resources (e.g., VPC Flow Logs, S3) beyond the common tags. | `map(string)` | `{}` | no |
@@ -326,7 +326,7 @@ module "vpc_deployer" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_all_endpoint_ids"></a> [all\_endpoint\_ids](#output\_all\_endpoint\_ids) | Map of all endpoint service names to their IDs |
 | <a name="output_all_security_group_ids"></a> [all\_security\_group\_ids](#output\_all\_security\_group\_ids) | List of all security group IDs |
 | <a name="output_app_security_group_id"></a> [app\_security\_group\_id](#output\_app\_security\_group\_id) | ID of the application security group |

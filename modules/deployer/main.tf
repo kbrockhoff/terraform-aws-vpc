@@ -21,7 +21,7 @@ data "aws_iam_policy_document" "main" {
     resources = ["*"]
   }
 
-  # Pricing API access (modules/pricing cost estimation)
+  # Pricing API access (modules/cost-estimation)
   statement {
     sid    = "PricingRead"
     effect = "Allow"

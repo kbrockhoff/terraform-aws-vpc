@@ -513,11 +513,10 @@ variable "transit_gateway_attachment_subnets" {
 variable "cost_estimation_config" {
   description = "Configuration object for monthly cost estimation"
   type = object({
-    enabled                   = bool
-    data_transfer_mb_per_hour = number
+    enabled                      = optional(bool, true)
+    data_transfer_mb_per_hour    = optional(number, 10)
+    flow_logs_gb_per_month       = optional(number, 1)
+    vpc_endpoint_traffic_percent = optional(number, 50)
   })
-  default = {
-    enabled                   = true
-    data_transfer_mb_per_hour = 10
-  }
+  default = {}
 }
