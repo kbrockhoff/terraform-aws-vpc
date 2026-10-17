@@ -64,8 +64,8 @@ resource "aws_security_group" "main" {
   tags = merge(
     var.tags,
     {
-      Name                      = var.name
-      "${var.networktags_name}" = var.networktags_value
+      Name                   = var.name
+      (var.networktags_name) = var.networktags_value
     }
   )
 }
