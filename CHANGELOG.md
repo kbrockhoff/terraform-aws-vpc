@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.0](https://github.com/kbrockhoff/terraform-aws-vpc/compare/v0.1.0...v0.2.0) (2026-10-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* **cost-estimation:** modules/pricing is now modules/cost-estimation with quantity inputs and only monthly_cost_estimate and cost_breakdown outputs. cost_breakdown keys change: nat_gateway_fixed -> nat_gateway_hours, interface_endpoints_fixed -> interface_endpoint_hours, interface_endpoints_data -> interface_endpoint_data; gateway_endpoints is removed; public_ipv4_addresses and transit_gateway_attachment_hours are added.
+* **deployer:** modules/bootstrap is removed, along with its role, github_org, github_repo, environment and state backend inputs and its role and policy outputs. Cut over in this order: apply terraform-aws-cicdrole and modules/deployer with iam_role_name = module.<cicdrole>.role_name; point the pipeline at the <name_prefix>-cicd-deployer role and confirm a plan; then remove the old bootstrap module, which destroys the <name_prefix>-github-actions role.
+
+### Bug Fixes
+
+* **dependencies:** skip CKV_AWS_394 on the availability zones lookup ([5f671d9](https://github.com/kbrockhoff/terraform-aws-vpc/commit/5f671d9972be1a72db1f1f4651dac6d7329f9633))
+* **deployer:** stop retagging foreign KMS keys into the module's scope ([46bd148](https://github.com/kbrockhoff/terraform-aws-vpc/commit/46bd1483fc6903a11746f2ba7572fe8cf6a35f17))
+* **security-group:** use a parenthesized tag key instead of interpolation ([55ddc90](https://github.com/kbrockhoff/terraform-aws-vpc/commit/55ddc906a3d845d8949f1cd9a158e7aa92b02822))
+* **vscode:** point agent instruction settings at root AGENTS.md ([58f13e6](https://github.com/kbrockhoff/terraform-aws-vpc/commit/58f13e647e17b43e24f457729d825424f703a597))
+
+
+### Code Refactoring
+
+* **cost-estimation:** replace pricing submodule with cost-estimation ([06ebee0](https://github.com/kbrockhoff/terraform-aws-vpc/commit/06ebee0b62130946042a611446327024decdb3ed))
+* **deployer:** replace bootstrap submodule with deployer policies ([edd69db](https://github.com/kbrockhoff/terraform-aws-vpc/commit/edd69dbbc5184ffc7e036b6d61df56b7d8a35d95))
+
 ## 0.1.0 (2025-08-13)
 
 
