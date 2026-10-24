@@ -135,7 +135,7 @@ module "vpc_endpoints" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
 
@@ -144,15 +144,15 @@ module "vpc_endpoints" {
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.8.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.69.1 |
 
 ## Resources
 
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_vpc_endpoint.gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
 | [aws_vpc_endpoint.interface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint) | resource |
 
@@ -161,7 +161,7 @@ module "vpc_endpoints" {
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_default_policy"></a> [default\_policy](#input\_default\_policy) | Default policy to apply to all endpoints when default\_policy\_enabled is true | `string` | `null` | no |
 | <a name="input_default_policy_enabled"></a> [default\_policy\_enabled](#input\_default\_policy\_enabled) | Enable default restrictive policy for all endpoints | `bool` | `false` | no |
 | <a name="input_enabled"></a> [enabled](#input\_enabled) | Set to false to prevent the module from creating any resources | `bool` | `true` | no |
@@ -184,7 +184,7 @@ module "vpc_endpoints" {
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_all_endpoint_arns"></a> [all\_endpoint\_arns](#output\_all\_endpoint\_arns) | Map of all endpoint service names to their ARNs |
 | <a name="output_all_endpoint_ids"></a> [all\_endpoint\_ids](#output\_all\_endpoint\_ids) | Map of all endpoint service names to their IDs |
 | <a name="output_gateway_endpoint_count"></a> [gateway\_endpoint\_count](#output\_gateway\_endpoint\_count) | Number of Gateway endpoints created |
