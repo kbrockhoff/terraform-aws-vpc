@@ -69,11 +69,54 @@ data "aws_iam_policy_document" "main" {
       "kms:GetKeyPolicy",
       "kms:GetKeyRotationStatus",
       "kms:ListResourceTags",
+    ]
+    resources = [
+      "arn:${var.partition}:kms:${var.region}:${var.account_id}:key/*",
+    ]
+  }
+
+  # CreateKey with tags needs TagResource on every key, so it cannot be limited by resource tag;
+  # a Name tag, if sent, must match the module's pattern
+  statement {
+    sid    = "KmsTagKey"
+    effect = "Allow"
+    actions = [
       "kms:TagResource",
     ]
     resources = [
       "arn:${var.partition}:kms:${var.region}:${var.account_id}:key/*",
     ]
+
+    condition {
+      test     = "StringLikeIfExists"
+      variable = "aws:RequestTag/Name"
+      values   = [local.name_tag_pattern]
+    }
+  }
+
+  # Stops retagging a key named by something else so it matches KmsKeyModifyTagged;
+  # UntagResource is already limited to the module's keys there
+  statement {
+    sid    = "KmsDenyRetagForeignKey"
+    effect = "Deny"
+    actions = [
+      "kms:TagResource",
+    ]
+    resources = [
+      "arn:${var.partition}:kms:${var.region}:${var.account_id}:key/*",
+    ]
+
+    condition {
+      test     = "Null"
+      variable = "aws:ResourceTag/Name"
+      values   = ["false"]
+    }
+
+    condition {
+      test     = "StringNotLike"
+      variable = "aws:ResourceTag/Name"
+      values   = [local.name_tag_pattern]
+    }
   }
 
   # Policy changes and deletion only on keys created by the parent module
