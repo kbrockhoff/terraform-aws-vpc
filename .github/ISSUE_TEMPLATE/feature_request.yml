@@ -34,7 +34,7 @@ body:
       render: hcl
       placeholder: |
         # Example of how the feature might work
-        module "vpc" {
+        module "this" {
           source = "..."
           
           # new feature configuration

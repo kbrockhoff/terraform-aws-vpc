@@ -517,13 +517,28 @@ variable "transit_gateway_attachment_subnets" {
 # ----
 
 variable "cost_estimation_config" {
-  description = "Configuration object for monthly cost estimation"
+  description = <<-EOT
+    Configuration object for monthly cost estimation:
+    - enabled: set to false to skip the Pricing API lookups
+    - data_transfer_mb_per_hour: assumed MB per hour processed by NAT gateways and interface endpoints combined (overridden by environment_type defaults)
+    - flow_logs_gb_per_month: assumed GB of VPC flow logs delivered to CloudWatch Logs per month
+    - vpc_endpoint_traffic_percent: share of that traffic sent through interface endpoints when NAT gateways also exist; the rest goes through NAT
+  EOT
   type = object({
-    enabled                   = bool
-    data_transfer_mb_per_hour = number
+    enabled                      = optional(bool, true)
+    data_transfer_mb_per_hour    = optional(number, 10)
+    flow_logs_gb_per_month       = optional(number, 1)
+    vpc_endpoint_traffic_percent = optional(number, 50)
   })
-  default = {
-    enabled                   = true
-    data_transfer_mb_per_hour = 10
+  default = {}
+
+  validation {
+    condition     = var.cost_estimation_config.data_transfer_mb_per_hour >= 0 && var.cost_estimation_config.flow_logs_gb_per_month >= 0
+    error_message = "cost_estimation_config usage assumptions must be zero or positive."
+  }
+
+  validation {
+    condition     = var.cost_estimation_config.vpc_endpoint_traffic_percent >= 0 && var.cost_estimation_config.vpc_endpoint_traffic_percent <= 100
+    error_message = "cost_estimation_config.vpc_endpoint_traffic_percent must be between 0 and 100."
   }
 }
