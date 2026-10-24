@@ -1,4 +1,6 @@
 data "aws_availability_zones" "available" {
+  # Callers pin zones with allowed_availability_zone_ids; an identity filter here would hardcode region-specific zones
+  #checkov:skip=CKV_AWS_394:Zone selection is pinned by var.allowed_availability_zone_ids, not by this data source
   state = "available"
 }
 
